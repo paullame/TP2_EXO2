@@ -17,21 +17,28 @@ class Creature(monNom: String, maVie: Int, baseAttack: Int, armure: Int, nbAttaq
   {
     val r = scala.util.Random
     var tot: Int = 0
-    while (nbDice > 0)
+    var diceLeft = nbDice
+    while (diceLeft > 0)
       {
         tot = tot + r.nextInt( max ) + 1
+        diceLeft -= 1
       }
     tot
   }
 
+  def takeDamage (degat: Int): Unit =
+  {
+    vie -= degat
+  }
+
   // Attack creature based on atk and nbAtk
-  def attaqueMelee (creature: Creature): Int =
+  def attaqueMelee (creature: Creature /* , distance: Int*/): Int =
   {
     var attackLeft: Int = nbAtk
     var precisionLeft: Int = prec
     var totalDamage:Int = 0
 
-    while (attackLeft > 0)
+    while (attackLeft > 0) // && distance <= 5)
       {
         if (creature.vie > 0)
           {
@@ -39,7 +46,7 @@ class Creature(monNom: String, maVie: Int, baseAttack: Int, armure: Int, nbAttaq
             if (touch >= creature.arm)
               {
                 val degat = dice(nbDice,atkDice) + atk
-                creature.vie -= degat
+                creature.takeDamage(degat)
                 totalDamage += degat
                 if (creature.vie <= 0)
                   creature.die()

@@ -1,5 +1,6 @@
 
-class Creature(nom: String) extends Serializable {
+class Creature(monNom: String) extends Serializable {
 
+  val nom: String = monNom
 
 }

@@ -16,37 +16,34 @@ object main {
     val orc = new Creature("orc")
     val dragon = new Creature("dragon")
 
-
+    //creation de l'array de Creatures
     val creatureArray = Array(solar, orc, dragon)
     val indexedCreatureArray= creatureArray.zipWithIndex.map{case (creature, index) => (index.toLong, creature)}
 
+    //creation de l'array des arretes
+    val indexedEdgeArray = for (i <- 0 ; j <- creatureArray.indices) yield Edge(, j.toLong, 10)
 
-    val edgeArray = Array(
-      Edge(1L, 2L, 10 ),
-      Edge(1L, 3L, 20 )
-    )
-    val result = for (i <- 0 until creatureArray.length; j <- (i + 1) until creatureArray.length) yield Edge(i.toLong, j.toLong, 10)
-
-
+    //creation des RDDs
     val vertexRDD: RDD[(Long, Creature)] = sc.parallelize(indexedCreatureArray)
-    val edgeRDD: RDD[Edge[Int]] = sc.parallelize(result)
+    val edgeRDD: RDD[Edge[Int]] = sc.parallelize(indexedEdgeArray)
 
-    val graph: Graph[ Creature,Int] = Graph(vertexRDD, edgeRDD)
+
+    //creation du graphe
+    val defaultCreature = new Creature("creature inconnue")
+    val graph: Graph[ Creature,Int] = Graph(vertexRDD, edgeRDD, defaultCreature)
 
 
     println("on imprime les vertices")
     graph.vertices.collect.foreach{
-      case (id, creature) => println(s"name is $creature")
+      case (id, creature) => println(s"name is ${creature.nom}")
     }
 
-/*    println("on imprime les Edges")
-    graph.edges.collect.foreach{
-      case (id, distance) => println(s"name is $distance")
-    }*/
+    println("on imprime les Edges")
+    graph.edges.map(e => e.attr).count
 
     println("opération sur triplets")
     for (triplet <- graph.triplets.collect) {
-      println(s"${triplet.srcAttr} is ${triplet.attr} meters away from ${triplet.dstAttr} ")
+      println(s"${triplet.srcAttr.nom} is ${triplet.attr} meters away from ${triplet.dstAttr.nom} ")
     }
 
   }

@@ -21,7 +21,7 @@ object main {
     val indexedCreatureArray= creatureArray.zipWithIndex.map{case (creature, index) => (index.toLong, creature)}
 
     //creation de l'array des arretes
-    val indexedEdgeArray = for (j <- 1 to creatureArray.length-1) yield Edge(0, j.toLong, 10)
+    val indexedEdgeArray = for (j <- 1 until creatureArray.length) yield Edge(0, j.toLong, 10)
 
     //creation des RDDs
     val vertexRDD: RDD[(Long, Creature)] = sc.parallelize(indexedCreatureArray)

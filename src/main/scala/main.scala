@@ -12,24 +12,52 @@ object main {
     val sc= new SparkContext(conf)
     sc.setLogLevel("ERROR")
 
-    val solar = new Creature("Solar")
-    val orc = new Creature("orc")
-    val dragon = new Creature("dragon")
+    val solar = new Creature("Solar", 363, 18, 44, 4, 35, 6, 3, 50)
+    val worgRider1 = new Creature("Worg Rider", 13, 6, 18, 1, 6, 8, 1, 20)
+    val worgRider2 = new Creature("Worg Rider", 13, 6, 18, 1, 6, 8, 1, 20)
+    val worgRider3 = new Creature("Worg Rider", 13, 6, 18, 1, 6, 8, 1, 20)
+    val worgRider4 = new Creature("Worg Rider", 13, 6, 18, 1, 6, 8, 1, 20)
+    val worgRider5 = new Creature("Worg Rider", 13, 6, 18, 1, 6, 8, 1, 20)
+    val worgRider6 = new Creature("Worg Rider", 13, 6, 18, 1, 6, 8, 1, 20)
+    val worgRider7 = new Creature("Worg Rider", 13, 6, 18, 1, 6, 8, 1, 20)
+    val worgRider8 = new Creature("Worg Rider", 13, 6, 18, 1, 6, 8, 1, 20)
+    val worgRider9 = new Creature("Worg Rider", 13, 6, 18, 1, 6, 8, 1, 20)
+    val barbare1 = new Creature("Barbare", 142, 10, 17, 3, 19, 8, 1, 40)
+    val barbare2 = new Creature("Barbare", 142, 10, 17, 3, 19, 8, 1, 40)
+    val barbare3 = new Creature("Barbare", 142, 10, 17, 3, 19, 8, 1, 40)
+    val barbare4 = new Creature("Barbare", 142, 10, 17, 3, 19, 8, 1, 40)
+    val warlord = new Creature("Warlord", 141, 10, 27, 3, 20, 8, 1, 30)
 
     //creation de l'array de Creatures
-    val creatureArray = Array(solar, orc, dragon)
+    val creatureArray = Array(
+      solar,
+      worgRider1,
+      worgRider2,
+      worgRider3,
+      worgRider4,
+      worgRider5,
+      worgRider6,
+      worgRider7,
+      worgRider8,
+      worgRider9,
+      barbare1,
+      barbare2,
+      barbare3,
+      barbare4,
+      warlord
+    )
     val indexedCreatureArray= creatureArray.zipWithIndex.map{case (creature, index) => (index.toLong, creature)}
 
-    //creation de l'array des arretes
-    val indexedEdgeArray = for (j <- 1 until creatureArray.length) yield Edge(0, j.toLong, 10)
+    //creation de l'array des arretes (créatures placées entre 50 et 500 ft
+    var indexedEdgeArray = for (j <- 1 until creatureArray.length) yield Edge(0, j.toLong, scala.util.Random.nextInt(450)+50)
 
     //creation des RDDs
-    val vertexRDD: RDD[(Long, Creature)] = sc.parallelize(indexedCreatureArray)
-    val edgeRDD: RDD[Edge[Int]] = sc.parallelize(indexedEdgeArray)
+    var vertexRDD: RDD[(Long, Creature)] = sc.parallelize(indexedCreatureArray)
+    var edgeRDD: RDD[Edge[Int]] = sc.parallelize(indexedEdgeArray)
 
 
     //creation du graphe
-    val defaultCreature = new Creature("creature inconnue")
+    val defaultCreature = new Creature("creature inconnue", 1, 0, 0, 0, 0, 0, 0, 0)
     val graph: Graph[ Creature,Int] = Graph(vertexRDD, edgeRDD, defaultCreature)
 
 
@@ -43,8 +71,12 @@ object main {
 
     println("opération sur triplets")
     for (triplet <- graph.triplets.collect) {
-      println(s"${triplet.srcAttr.nom} is ${triplet.attr} meters away from ${triplet.dstAttr.nom} ")
+      println(s"${triplet.srcAttr.nom} is ${triplet.attr} ft away from ${triplet.dstAttr.nom} ")
     }
+    println(s"vie du warlord : ${warlord.vie}")
+    solar.attaqueMelee(warlord)
+
+    println(s"nouvelle vie du warlord : ${warlord.vie}")
 
   }
 

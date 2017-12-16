@@ -1,4 +1,3 @@
-import org.apache.spark.graphx.Graph
 
 class Creature(monNom: String, maVie: Int, baseAttack: Int, armure: Int, nbAttaquesParTour: Int,precisionPremAttaque: Int, desAttaque: Int , nbDes: Int, vitesse: Int) extends Serializable {
 
@@ -62,6 +61,11 @@ class Creature(monNom: String, maVie: Int, baseAttack: Int, armure: Int, nbAttaq
   def die() : Unit=
   {
     this.vie = 0
+  }
+
+  def update(message: Message): Creature = {
+    this.vie-=message.damage
+    this
   }
 
 }

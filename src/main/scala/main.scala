@@ -1,4 +1,4 @@
-import org.apache.spark.graphx.{Edge, Graph}
+import org.apache.spark.graphx.{Edge, Graph, VertexRDD}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.{SparkConf, SparkContext}
 
@@ -73,10 +73,46 @@ object main {
     for (triplet <- graph.triplets.collect) {
       println(s"${triplet.srcAttr.nom} is ${triplet.attr} ft away from ${triplet.dstAttr.nom} ")
     }
-    println(s"vie du warlord : ${warlord.vie}")
-    solar.attaqueMelee(warlord)
 
-    println(s"nouvelle vie du warlord : ${warlord.vie}")
+
+
+
+    //graph.aggregateMessages[Int](ctx => ctx.sendToDst(1), _ + _)
+
+
+    println("DEBUT FONCTION AGGREGATE")
+
+    val olderFollowers: VertexRDD[(Message)] = graph.aggregateMessages[(Message)](
+      triplet => { // Map Function
+
+        def message = Message(20,100)
+        triplet.sendToSrc(message)
+
+
+      },
+      // Add counter and age
+      (a, b) => Message(a.damage + b.damage, a.deplacement + b.deplacement) // Reduce Function
+    )
+
+    val result: Graph[Creature, Int] =graph.joinVertices(olderFollowers)((id, crea, message ) => crea.update(message))
+    val result2: Graph[Creature, Int] = graph.mapEdges(e => {
+      def message =Message(20,100)
+      e.attr - message.deplacement
+    })
+
+    println("on imprime les vertices")
+    result.vertices.collect.foreach{
+      case (id, creature) => println(s"la creature est ${creature.nom} et ses hp sont ${creature.vie} ")
+    }
+
+    println("opération sur triplets")
+    for (triplet <- result2.triplets.collect) {
+      println(s"${triplet.srcAttr.nom} is ${triplet.attr} ft away from ${triplet.dstAttr.nom} ")
+    }
+
+
+
+
 
   }
 

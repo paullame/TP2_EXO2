@@ -1,16 +1,18 @@
 import org.apache.spark.graphx.VertexId
-class Warlord(monVertexId: Long) extends Creature(monVertexId){
 
-  val nom: String = "Warlord"
-  var vie: Int = 141
-  val atk: Int = 10
-  val arm: Int = 27
-  val nbAtk: Int = 3
-  val prec: Int = 20
-  val atkDice: Int = 8
-  val nbDice: Int = 1
-  val vit: Int = 20
-  val equipe: Boolean = false // gentils = true et méchants =false
+class Warlord(monVertexId: Long) extends Creature(monVertexId) {
+
+  val nom = "Warlord"
+  var vie = 141
+  val atk = 10
+  val arm = 27
+  val nbAtk = 3
+  val prec = 20
+  val atkDice = 8
+  val nbDice = 1
+  val vit = 20
+  var canAttack = false
+  val equipe = false // gentils = true et méchants =false
 
   override def attaquer(creature: Creature, vertexId: VertexId): Int = {
     attaqueMelee(creature)
@@ -39,8 +41,6 @@ class Warlord(monVertexId: Long) extends Creature(monVertexId){
     }
     totalDamage
   }
-
-
 
 
 }

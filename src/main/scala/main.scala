@@ -9,14 +9,14 @@ object main {
 
     val conf = new SparkConf().setAppName("TP2_EXO2").setMaster("local")
 
-    val sc= new SparkContext(conf)
+    val sc = new SparkContext(conf)
     sc.setLogLevel("ERROR")
 
     val indexedCreatureArray = initialisationCreatures
 
 
     //creation de l'array des arretes créatures placées entre 50 et 500 ft)
-    val indexedEdgeArray = for (j <- 2 until indexedCreatureArray.length-1) yield Edge(1L, j.toLong, scala.util.Random.nextInt(50) + 110)
+    val indexedEdgeArray = for (j <- 2 until indexedCreatureArray.length - 1) yield Edge(1L, j.toLong, scala.util.Random.nextInt(50) + 110)
 
     //creation des RDDs
     val vertexRDD: RDD[(Long, Creature)] = sc.parallelize(indexedCreatureArray)
@@ -25,8 +25,7 @@ object main {
 
     //creation du graphe
     val defaultCreature = new WorgRider(0L)
-    val graph: Graph[ Creature,Int] = Graph(vertexRDD, edgeRDD, defaultCreature)
-
+    val graph: Graph[Creature, Int] = Graph(vertexRDD, edgeRDD, defaultCreature)
 
 
     afficherVertices(graph)
@@ -35,7 +34,7 @@ object main {
 
     val resultDeplacement: Graph[Creature, Int] = graph.mapTriplets(e => {
       e.dstAttr.checkCanAttack(e.attr)
-      if(!e.dstAttr.canAttack) {
+      if (!e.dstAttr.canAttack) {
         e.dstAttr.deplacer(e.attr)
       }
       else {
@@ -53,14 +52,15 @@ object main {
       triplet => { // Map Function
 
 
-        if(triplet.dstId==2L)        {
+        if (triplet.dstId == 2L) {
 
           def gentils = Message(triplet.srcAttr.attaqueMelee(triplet.dstAttr))
+
           triplet.sendToDst(gentils)
 
         }
 
-        if(triplet.dstAttr.canAttack) {
+        if (triplet.dstAttr.canAttack) {
           def mechants = Message(triplet.dstAttr.attaqueMelee(triplet.srcAttr)) // message est une case class donc pas besoin d'utiliser le mot clé "new"
           triplet.sendToSrc(mechants)
         }
@@ -73,21 +73,11 @@ object main {
 
 
     // update des distances dans les arretes
-    val resultCombat: Graph[Creature, Int] =resultDeplacement.joinVertices(olderFollowers)((id, crea, message ) => crea.update(message))
+    val resultCombat: Graph[Creature, Int] = resultDeplacement.joinVertices(olderFollowers)((id, crea, message) => crea.update(message))
 
 
     afficherVertices(resultCombat)
     afficherTriplets(resultCombat)
-
-
-
-
-
-
-
-
-
-
 
 
   }
@@ -133,9 +123,9 @@ object main {
     creatureArray
   }
 
-  def afficherVertices(graph: Graph[Creature,Int]):Unit = {
-    println("on imprime les vertices du graphe"+graph.toString)
-    graph.vertices.collect.foreach{
+  def afficherVertices(graph: Graph[Creature, Int]): Unit = {
+    println("on imprime les vertices du graphe" + graph.toString)
+    graph.vertices.collect.foreach {
       case (id, creature) => println(s"la creature est ${creature.nom}, son vertexId est ${id} et et ses hp sont ${creature.vie} ")
     }
     println("\n")
@@ -143,8 +133,8 @@ object main {
 
   }
 
-  def afficherTriplets(graph: Graph[Creature,Int]):Unit = {
-    println("on imprime sur triplets du graphe"+graph.toString)
+  def afficherTriplets(graph: Graph[Creature, Int]): Unit = {
+    println("on imprime sur triplets du graphe" + graph.toString)
     for (triplet <- graph.triplets.collect) {
       println(s"${triplet.srcAttr.nom} is ${triplet.attr} ft away from ${triplet.dstAttr.nom} ")
     }

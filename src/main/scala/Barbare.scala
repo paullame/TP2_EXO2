@@ -1,5 +1,6 @@
 import org.apache.spark.graphx.VertexId
-class Barbare(monVertexId: Long) extends Creature(monVertexId){
+
+class Barbare(monVertexId: Long) extends Creature(monVertexId) {
 
   val nom: String = "Barbare"
   var vie: Int = 142
@@ -10,6 +11,7 @@ class Barbare(monVertexId: Long) extends Creature(monVertexId){
   val atkDice: Int = 8
   val nbDice: Int = 1
   val vit: Int = 40
+  var canAttack = false
   val equipe: Boolean = false
 
   override def attaquer(creature: Creature, vertexId: VertexId): Int = {
@@ -39,8 +41,6 @@ class Barbare(monVertexId: Long) extends Creature(monVertexId){
     }
     totalDamage
   }
-
-
 
 
 }

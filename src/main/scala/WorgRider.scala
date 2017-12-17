@@ -2,25 +2,26 @@ import org.apache.spark.graphx.VertexId
 
 class WorgRider(monVertexId: Long) extends Creature(monVertexId) {
 
-  val nom="Worg Rider"
-  var vie=13
-  val atk=6
-  val arm=18
-  val nbAtk=1
-  val prec=6
-  val atkDice=8
-  val nbDice=1
-  val vit=20
-  val equipe=false  //gentils = true et méchants = false
+  val nom = "Worg Rider"
+  var vie = 13
+  val atk = 6
+  val arm = 18
+  val nbAtk = 1
+  val prec = 6
+  val atkDice = 8
+  val nbDice = 1
+  val vit = 20
+  var canAttack = false
+  val equipe = false //gentils = true et méchants = false
 
 
   override def attaquer(creature: Creature, vertexId: VertexId): Int = {
 
-      attaqueMelee(creature)
+    attaqueMelee(creature)
 
   }
 
-   def attaqueMelee(creature: Creature): Int = {
+  def attaqueMelee(creature: Creature): Int = {
 
     var attackLeft: Int = nbAtk
     var precisionLeft: Int = prec
@@ -43,12 +44,6 @@ class WorgRider(monVertexId: Long) extends Creature(monVertexId) {
     }
     totalDamage
   }
-
-
-
-
-
-
 
 
 }

@@ -1,16 +1,19 @@
-abstract class Creature(monNom: String, monVertexId: Long, maVie: Int, baseAttack: Int, armure: Int, nbAttaquesParTour: Int,precisionPremAttaque: Int, desAttaque: Int , nbDes: Int, vitesse: Int, monEquipe: Boolean) extends Serializable {
+import org.apache.spark.graphx.VertexId
 
-  val nom: String = monNom
+abstract class Creature(monVertexId: Long) extends Serializable {
+
+  val nom: String
   val vertexId: Long = monVertexId
-  var vie:    Int = maVie
-  val atk:    Int = baseAttack
-  val arm:    Int = armure
-  val nbAtk:  Int = nbAttaquesParTour
-  val prec:   Int = precisionPremAttaque
-  val atkDice:Int = desAttaque
-  val nbDice :Int = nbDes
-  val vit:    Int = vitesse
-  val equipe: Boolean = monEquipe //gentils = true et méchants = false
+  var vie:    Int
+  val atk:    Int
+  val arm:    Int
+  val nbAtk:  Int
+  val prec:   Int
+  val atkDice:Int
+  val nbDice :Int
+  val vit:    Int
+  var canAttack: Boolean = true
+  val equipe: Boolean //gentils = true et méchants = false
 
   // Generate nbDice random number(s) between 1 and max
   def dice (nbDice: Int, max: Int): Int =
@@ -32,35 +35,29 @@ abstract class Creature(monNom: String, monVertexId: Long, maVie: Int, baseAttac
   }
 
   // Attack creature based on atk and nbAtk
-  abstract def attaqueMelee (creature: Creature /* , distance: Int*/): Int =
-  {
-    var attackLeft: Int = nbAtk
-    var precisionLeft: Int = prec
-    var totalDamage:Int = 0
+  def attaquer(creature: Creature, vertexId: VertexId): Int
 
-    while (attackLeft > 0 && vie>0) // && distance <= 5)
-      {
-        if (creature.vie > 0)
-          {
-            val touch: Int = dice(1,20)+precisionLeft
-            if (touch >= creature.arm)
-              {
-                val degat = dice(nbDice,atkDice) + atk
-                creature.takeDamage(degat)
-                totalDamage += degat
-                if (creature.vie <= 0)
-                  creature.die()
-              }
-          }
-        precisionLeft -= 5
-        attackLeft -= 1
-      }
-    totalDamage
+  def attaqueMelee (creature: Creature): Int
+
+
+  def checkCanAttack(edgeAttr: Int):Unit = {
+    if(edgeAttr>2) {
+      canAttack=false
+    }
+    else {
+      canAttack=true
+    }
+
+  }
+
+  def deplacer(edgeAttr: Int): Int = {
+    edgeAttr-vit
   }
 
 /*  def choseTarget(): VertexId = {
 
   }*/
+
 
 
   def die() : Unit=

@@ -48,7 +48,7 @@ object main {
     )
     val indexedCreatureArray= creatureArray.zipWithIndex.map{case (creature, index) => (index.toLong, creature)}
 
-    //creation de l'array des arretes (créatures placées entre 50 et 500 ft
+    //creation de l'array des arretes créatures placées entre 50 et 500 ft)
     var indexedEdgeArray = for (j <- 1 until creatureArray.length) yield Edge(0, j.toLong, scala.util.Random.nextInt(450)+50)
 
     //creation des RDDs
@@ -61,44 +61,50 @@ object main {
     val graph: Graph[ Creature,Int] = Graph(vertexRDD, edgeRDD, defaultCreature)
 
 
-    println("on imprime les vertices")
+    //on affiche les sommets
+    println("on affiche les vertices")
     graph.vertices.collect.foreach{
       case (id, creature) => println(s"name is ${creature.nom}")
     }
 
-    println("on imprime les Edges")
+    //on affiche les arretes
+    // Ca marche pas, a investiguer
+    println("on affiche les Edges")
     graph.edges.map(e => e.attr).count
 
-    println("opération sur triplets")
+
+    //on affiche les triplets
+    println("on affiche sur triplets")
     for (triplet <- graph.triplets.collect) {
       println(s"${triplet.srcAttr.nom} is ${triplet.attr} ft away from ${triplet.dstAttr.nom} ")
     }
 
 
 
-
-    //graph.aggregateMessages[Int](ctx => ctx.sendToDst(1), _ + _)
-
-
+    // 2 fonction sndMessages et mergeMessages
+    //logique de fusion des messages
+    // @TODO passer les fonctions anynomes dans de vraies fonctions
     println("DEBUT FONCTION AGGREGATE")
-
     val olderFollowers: VertexRDD[(Message)] = graph.aggregateMessages[(Message)](
       triplet => { // Map Function
 
-        def message = Message(20,100)
+        def message = Message(20,100) // message est une case class donc pas besoin d'utiliser le mot clé "new"
         triplet.sendToSrc(message)
 
 
       },
-      // Add counter and age
+      // Add damage and deplacement
+      // @TODO retirer déplacement car c'est géré par les arretes et pas par les messages
       (a, b) => Message(a.damage + b.damage, a.deplacement + b.deplacement) // Reduce Function
     )
 
+    // update des distances dans les arretes
     val result: Graph[Creature, Int] =graph.joinVertices(olderFollowers)((id, crea, message ) => crea.update(message))
     val result2: Graph[Creature, Int] = graph.mapEdges(e => {
       def message =Message(20,100)
       e.attr - message.deplacement
     })
+
 
     println("on imprime les vertices")
     result.vertices.collect.foreach{

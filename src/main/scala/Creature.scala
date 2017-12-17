@@ -63,6 +63,8 @@ class Creature(monNom: String, maVie: Int, baseAttack: Int, armure: Int, nbAttaq
     this.vie = 0
   }
 
+  //TODO completer la fonction
+  //TODO ajouter la logique de qui attaque qui
   def update(message: Message): Creature = {
     this.vie-=message.damage
     this

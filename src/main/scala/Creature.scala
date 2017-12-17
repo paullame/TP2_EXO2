@@ -1,7 +1,7 @@
-
-class Creature(monNom: String, maVie: Int, baseAttack: Int, armure: Int, nbAttaquesParTour: Int,precisionPremAttaque: Int, desAttaque: Int , nbDes: Int, vitesse: Int) extends Serializable {
+abstract class Creature(monNom: String, monVertexId: Long, maVie: Int, baseAttack: Int, armure: Int, nbAttaquesParTour: Int,precisionPremAttaque: Int, desAttaque: Int , nbDes: Int, vitesse: Int, monEquipe: Boolean) extends Serializable {
 
   val nom: String = monNom
+  val vertexId: Long = monVertexId
   var vie:    Int = maVie
   val atk:    Int = baseAttack
   val arm:    Int = armure
@@ -10,6 +10,7 @@ class Creature(monNom: String, maVie: Int, baseAttack: Int, armure: Int, nbAttaq
   val atkDice:Int = desAttaque
   val nbDice :Int = nbDes
   val vit:    Int = vitesse
+  val equipe: Boolean = monEquipe //gentils = true et méchants = false
 
   // Generate nbDice random number(s) between 1 and max
   def dice (nbDice: Int, max: Int): Int =
@@ -31,13 +32,13 @@ class Creature(monNom: String, maVie: Int, baseAttack: Int, armure: Int, nbAttaq
   }
 
   // Attack creature based on atk and nbAtk
-  def attaqueMelee (creature: Creature /* , distance: Int*/): Int =
+  abstract def attaqueMelee (creature: Creature /* , distance: Int*/): Int =
   {
     var attackLeft: Int = nbAtk
     var precisionLeft: Int = prec
     var totalDamage:Int = 0
 
-    while (attackLeft > 0) // && distance <= 5)
+    while (attackLeft > 0 && vie>0) // && distance <= 5)
       {
         if (creature.vie > 0)
           {
@@ -56,6 +57,10 @@ class Creature(monNom: String, maVie: Int, baseAttack: Int, armure: Int, nbAttaq
       }
     totalDamage
   }
+
+/*  def choseTarget(): VertexId = {
+
+  }*/
 
 
   def die() : Unit=

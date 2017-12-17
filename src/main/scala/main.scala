@@ -12,59 +12,26 @@ object main {
     val sc= new SparkContext(conf)
     sc.setLogLevel("ERROR")
 
-    val solar = new Creature("Solar", 363, 18, 44, 4, 35, 6, 3, 50)
-    val worgRider1 = new Creature("Worg Rider", 13, 6, 18, 1, 6, 8, 1, 20)
-    val worgRider2 = new Creature("Worg Rider", 13, 6, 18, 1, 6, 8, 1, 20)
-    val worgRider3 = new Creature("Worg Rider", 13, 6, 18, 1, 6, 8, 1, 20)
-    val worgRider4 = new Creature("Worg Rider", 13, 6, 18, 1, 6, 8, 1, 20)
-    val worgRider5 = new Creature("Worg Rider", 13, 6, 18, 1, 6, 8, 1, 20)
-    val worgRider6 = new Creature("Worg Rider", 13, 6, 18, 1, 6, 8, 1, 20)
-    val worgRider7 = new Creature("Worg Rider", 13, 6, 18, 1, 6, 8, 1, 20)
-    val worgRider8 = new Creature("Worg Rider", 13, 6, 18, 1, 6, 8, 1, 20)
-    val worgRider9 = new Creature("Worg Rider", 13, 6, 18, 1, 6, 8, 1, 20)
-    val barbare1 = new Creature("Barbare", 142, 10, 17, 3, 19, 8, 1, 40)
-    val barbare2 = new Creature("Barbare", 142, 10, 17, 3, 19, 8, 1, 40)
-    val barbare3 = new Creature("Barbare", 142, 10, 17, 3, 19, 8, 1, 40)
-    val barbare4 = new Creature("Barbare", 142, 10, 17, 3, 19, 8, 1, 40)
-    val warlord = new Creature("Warlord", 141, 10, 27, 3, 20, 8, 1, 30)
+    val indexedCreatureArray = initialisationCreatures
 
-    //creation de l'array de Creatures
-    val creatureArray = Array(
-      solar,
-      worgRider1,
-      worgRider2,
-      worgRider3,
-      worgRider4,
-      worgRider5,
-      worgRider6,
-      worgRider7,
-      worgRider8,
-      worgRider9,
-      barbare1,
-      barbare2,
-      barbare3,
-      barbare4,
-      warlord
-    )
-    val indexedCreatureArray= creatureArray.zipWithIndex.map{case (creature, index) => (index.toLong, creature)}
 
     //creation de l'array des arretes créatures placées entre 50 et 500 ft)
-    var indexedEdgeArray = for (j <- 1 until creatureArray.length) yield Edge(0, j.toLong, scala.util.Random.nextInt(450)+50)
+    val indexedEdgeArray = for (j <- 1 until indexedCreatureArray.length-1) yield Edge(1L, j.toLong, scala.util.Random.nextInt(450) + 50)
 
     //creation des RDDs
-    var vertexRDD: RDD[(Long, Creature)] = sc.parallelize(indexedCreatureArray)
-    var edgeRDD: RDD[Edge[Int]] = sc.parallelize(indexedEdgeArray)
+    val vertexRDD: RDD[(Long, Creature)] = sc.parallelize(indexedCreatureArray)
+    val edgeRDD: RDD[Edge[Int]] = sc.parallelize(indexedEdgeArray)
 
 
     //creation du graphe
-    val defaultCreature = new Creature("creature inconnue", 1, 0, 0, 0, 0, 0, 0, 0)
+    val defaultCreature = new Creature("creature inconnue",0L, 1, 0, 0, 0, 0, 0, 0, 0, true)
     val graph: Graph[ Creature,Int] = Graph(vertexRDD, edgeRDD, defaultCreature)
 
 
     //on affiche les sommets
     println("on affiche les vertices")
     graph.vertices.collect.foreach{
-      case (id, creature) => println(s"name is ${creature.nom}")
+      case (id, creature) => println(s"la creature est ${creature.nom}, son vertexId est ${id} et ses hp sont ${creature.vie} ")
     }
 
     //on affiche les arretes
@@ -88,22 +55,33 @@ object main {
     val olderFollowers: VertexRDD[(Message)] = graph.aggregateMessages[(Message)](
       triplet => { // Map Function
 
-        def message = Message(20,100) // message est une case class donc pas besoin d'utiliser le mot clé "new"
-        triplet.sendToSrc(message)
+
+        if(triplet.dstId==2L)        {
+          if(triplet.attr>)
+          def gentils = Message(triplet.srcAttr.attaqueMelee(triplet.dstAttr))
+          triplet.sendToDst(gentils)
+
+        }
+
+        def mechants = Message(triplet.dstAttr.attaqueMelee(triplet.srcAttr)) // message est une case class donc pas besoin d'utiliser le mot clé "new"
+        triplet.sendToSrc(mechants)
+        
+
 
 
       },
       // Add damage and deplacement
       // @TODO retirer déplacement car c'est géré par les arretes et pas par les messages
-      (a, b) => Message(a.damage + b.damage, a.deplacement + b.deplacement) // Reduce Function
+      (a, b) => Message(a.damage + b.damage) // Reduce Function
     )
 
     // update des distances dans les arretes
     val result: Graph[Creature, Int] =graph.joinVertices(olderFollowers)((id, crea, message ) => crea.update(message))
-    val result2: Graph[Creature, Int] = graph.mapEdges(e => {
+
+/*    val result2: Graph[Creature, Int] = graph.mapEdges(e => {
       def message =Message(20,100)
       e.attr - message.deplacement
-    })
+    })*/
 
 
     println("on imprime les vertices")
@@ -111,15 +89,57 @@ object main {
       case (id, creature) => println(s"la creature est ${creature.nom} et ses hp sont ${creature.vie} ")
     }
 
-    println("opération sur triplets")
+/*    println("opération sur triplets")
     for (triplet <- result2.triplets.collect) {
       println(s"${triplet.srcAttr.nom} is ${triplet.attr} ft away from ${triplet.dstAttr.nom} ")
-    }
+    }*/
 
 
 
 
 
   }
+
+  def initialisationCreatures(): Array[(Long, Creature)] = {
+
+    def solar = new Creature("Solar",1L, 363, 18, 44, 4, 35, 6, 3, 50,true)
+    def worgRider1 = new Creature("Worg Rider",2L, 13, 6, 18, 1, 6, 8, 1, 20, false)
+    def worgRider2 = new Creature("Worg Rider",3L, 13, 6, 18, 1, 6, 8, 1, 20, false)
+    def worgRider3 = new Creature("Worg Rider",4L, 13, 6, 18, 1, 6, 8, 1, 20, false)
+    def worgRider4 = new Creature("Worg Rider",5L, 13, 6, 18, 1, 6, 8, 1, 20, false)
+    def worgRider6 = new Creature("Worg Rider",6L, 13, 6, 18, 1, 6, 8, 1, 20, false)
+    def worgRider7 = new Creature("Worg Rider",7L, 13, 6, 18, 1, 6, 8, 1, 20, false)
+    def worgRider5 = new Creature("Worg Rider",8L, 13, 6, 18, 1, 6, 8, 1, 20, false)
+    def worgRider8 = new Creature("Worg Rider",9L, 13, 6, 18, 1, 6, 8, 1, 20, false)
+    def worgRider9 = new Creature("Worg Rider",10L, 13, 6, 18, 1, 6, 8, 1, 20, false)
+    def barbare1 = new Creature("Barbare",11L ,142, 10, 17, 3, 19, 8, 1, 40, false)
+    def barbare2 = new Creature("Barbare",12L ,142, 10, 17, 3, 19, 8, 1, 40, false)
+    def barbare3 = new Creature("Barbare",13L ,142, 10, 17, 3, 19, 8, 1, 40, false)
+    def barbare4 = new Creature("Barbare",14L ,142, 10, 17, 3, 19, 8, 1, 40, false)
+    def warlord = new Creature("Warlord",15L , 141, 10, 27, 3, 20, 8, 1, 30, false)
+
+    //creation de l'array de Creatures
+    def creatureArray = Array(
+      (solar.vertexId, solar),
+      (worgRider1.vertexId, worgRider1),
+      (worgRider2.vertexId, worgRider2),
+      (worgRider3.vertexId, worgRider3),
+      (worgRider4.vertexId, worgRider4),
+      (worgRider5.vertexId, worgRider5),
+      (worgRider6.vertexId, worgRider6),
+      (worgRider7.vertexId, worgRider7),
+      (worgRider8.vertexId, worgRider8),
+      (worgRider9.vertexId, worgRider9),
+      (barbare1.vertexId, barbare1),
+      (barbare2.vertexId, barbare2),
+      (barbare3.vertexId, barbare3),
+      (barbare4.vertexId, barbare4),
+      (warlord.vertexId, warlord)
+    )
+
+    creatureArray
+
+  }
+
 
 }

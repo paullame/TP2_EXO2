@@ -1,5 +1,10 @@
 import org.apache.spark.graphx.VertexId
 
+/*
+ * This class extends creature and implement
+ * specific attrributes and fight method
+ */
+
 class Solar(monVertexId: Long) extends Creature(monVertexId) {
 
   val nom = "Solar"

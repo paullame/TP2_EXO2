@@ -1,5 +1,11 @@
 import org.apache.spark.graphx.VertexId
 
+/*
+ * This class extends creature and implement
+ * specific attrributes and fight method
+ */
+
+
 class WorgRider(monVertexId: Long) extends Creature(monVertexId) {
 
   val nom = "Worg Rider"
@@ -21,6 +27,11 @@ class WorgRider(monVertexId: Long) extends Creature(monVertexId) {
 
   }
 
+
+  /*This method implemente the fight as a melee and return the damages inflicts
+* parameter :  the target an Creature
+* output : Int : the total damage value
+*/
   def attaqueMelee(creature: Creature): Int = {
 
     var attackLeft: Int = nbAtk

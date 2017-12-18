@@ -1,7 +1,15 @@
 import org.apache.spark.graphx.VertexId
 
+
+/*
+ * This class is an abstraction for all the creature
+ * It contain all the common atrtributs
+ * The method attaqueMelee will be implemented for all the specific creature
+ */
+
 abstract class Creature(monVertexId: Long) extends Serializable {
 
+  //attributes
   val nom: String
   val vertexId: Long = monVertexId
   var vie: Int

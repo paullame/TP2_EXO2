@@ -15,17 +15,8 @@ object main {
     val indexedCreatureArray = initialisationCreatures
 
 
-    //creation de l'array des arretes créatures placées entre 50 et 500 ft)
-    val indexedEdgeArray = for (j <- 2 until indexedCreatureArray.length - 1) yield Edge(1L, j.toLong, scala.util.Random.nextInt(50) + 110)
-
-    //creation des RDDs
-    val vertexRDD: RDD[(Long, Creature)] = sc.parallelize(indexedCreatureArray)
-    val edgeRDD: RDD[Edge[Int]] = sc.parallelize(indexedEdgeArray)
-
-
-    //creation du graphe
-    val defaultCreature = new WorgRider(0L)
-    val graph: Graph[Creature, Int] = Graph(vertexRDD, edgeRDD, defaultCreature)
+    // creation of the graph
+    val graph = GraphMaker(indexedCreatureArray, sc)
 
 
     afficherVertices(graph)
@@ -121,6 +112,29 @@ object main {
     )
 
     creatureArray
+
+  }
+
+
+  /*
+   * this method produce the graph of the creature
+   */
+  def GraphMaker(indexedCreatureArray : Array[(Long, Creature)], sc : SparkContext) : Graph[Creature, Int] = {
+
+    //creation de l'array des arretes créatures placées entre 50 et 500 ft)
+    val indexedEdgeArray = for (j <- 2 until indexedCreatureArray.length - 1) yield Edge(1L, j.toLong, scala.util.Random.nextInt(50) + 110)
+
+    //creation des RDDs
+    val vertexRDD: RDD[(Long, Creature)] = sc.parallelize(indexedCreatureArray)
+    val edgeRDD: RDD[Edge[Int]] = sc.parallelize(indexedEdgeArray)
+
+
+    //creation du graphe
+    val defaultCreature = new WorgRider(0L)
+
+    //val graph: Graph[Creature, Int] = Graph(vertexRDD, edgeRDD, defaultCreature)
+    val graph = Graph(vertexRDD, edgeRDD, defaultCreature)
+    return graph
   }
 
   def afficherVertices(graph: Graph[Creature, Int]): Unit = {

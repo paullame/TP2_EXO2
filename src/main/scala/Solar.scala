@@ -36,9 +36,9 @@ class Solar(monVertexId: Long) extends Creature(monVertexId) {
     while (attackLeft > 0 && vie > 0) // && distance <= 5)
     {
       if (creature.vie > 0) {
-        val touch: Int = dice(1, 20) + precisionLeft
+        val touch: Int = Dice.launch(1, 20) + precisionLeft
         if (touch >= creature.arm) {
-          val degat = dice(nbDice, atkDice) + atk
+          val degat = Dice.launch(nbDice, atkDice) + atk
           creature.takeDamage(degat)
           totalDamage += degat
           if (creature.vie <= 0)
@@ -61,9 +61,9 @@ class Solar(monVertexId: Long) extends Creature(monVertexId) {
     while (attackLeft > 0 && vie > 0) // && distance <= 5)
     {
       if (creature.vie > 0) {
-        val touch: Int = dice(1, 20) + precisionLeft
+        val touch: Int = Dice.launch(1, 20) + precisionLeft
         if (touch >= creature.arm) {
-          val degat = dice(nbDice, atkDice) + atk
+          val degat = Dice.launch(nbDice, atkDice) + atk
           creature.takeDamage(degat)
           totalDamage += degat
           if (creature.vie <= 0)

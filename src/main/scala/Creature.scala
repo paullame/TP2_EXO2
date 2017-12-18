@@ -15,17 +15,6 @@ abstract class Creature(monVertexId: Long) extends Serializable {
   var canAttack: Boolean
   val equipe: Boolean //gentils = true et méchants = false
 
-  // Generate nbDice random number(s) between 1 and max
-  def dice(nbDice: Int, max: Int): Int = {
-    val r = scala.util.Random
-    var tot: Int = 0
-    var diceLeft = nbDice
-    while (diceLeft > 0) {
-      tot = tot + r.nextInt(max) + 1
-      diceLeft -= 1
-    }
-    tot
-  }
 
   def takeDamage(degat: Int): Unit = {
     vie -= degat

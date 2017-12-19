@@ -12,7 +12,7 @@ object main {
     val sc = new SparkContext(conf)
     sc.setLogLevel("ERROR")
 
-    val indexedCreatureArray = initialisationCreatures
+    val indexedCreatureArray = initCombat1()
 
 
     // creation of the graph
@@ -42,7 +42,7 @@ object main {
     val olderFollowers: VertexRDD[(Message)] = resultDeplacement.aggregateMessages[(Message)](
       triplet => { // Map Function
 
-
+        //TODO logique d'attaque = le solar attaque un monstre aleatoirement, ou le plus près.
         if (triplet.dstId == 2L) {
 
           def gentils = Message(triplet.srcAttr.attaqueMelee(triplet.dstAttr))
@@ -74,7 +74,7 @@ object main {
   }
 
 
-  def initialisationCreatures(): Array[(Long, Creature)] = {
+  def initCombat1(): Array[(Long, Creature)] = {
 
     val solar: Creature = new Solar(1L)
     val worgRider1 = new WorgRider(2L)
@@ -109,6 +109,23 @@ object main {
       (barbare3.vertexId, barbare3),
       (barbare4.vertexId, barbare4),
       (warlord.vertexId, warlord)
+    )
+
+    creatureArray
+
+  }
+
+  def initCombat2(): Array[(Long, Creature)] = {
+
+    val solar: Creature = new Solar(1L)
+    //TODO
+    //1 Solar 2 Planetar, 2 Monavic Dena, 5 Astral Deva
+    //1 dragon, 200 OrcBarbare, 10 AngelSlayer
+    //utiliser un map pour initialiser les 200 orcs
+
+    //creation de l'array de Creatures
+    def creatureArray = Array(
+      (solar.vertexId, solar)
     )
 
     creatureArray

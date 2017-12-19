@@ -20,7 +20,7 @@ class Solar(monVertexId: Long) extends Creature(monVertexId) {
   val equipe = true //gentils = true et méchants = false
 
   //nouvel attribut
-  val regen = 15
+  val regen = 15 //TODO implementer la regeneration
 
 
   override def attaquer(creature: Creature, vertexId: VertexId): Int = {

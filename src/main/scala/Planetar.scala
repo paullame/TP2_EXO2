@@ -1,6 +1,6 @@
 import org.apache.spark.graphx.VertexId
 
-class OrcBarbare(monVertexId: VertexId) extends Creature(monVertexId){
+class Planetar(monVertexId: VertexId) extends Creature(monVertexId) {
   val nom: String = _
   var vie: Int = _
   val atk: Int = _

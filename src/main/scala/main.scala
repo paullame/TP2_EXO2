@@ -1,3 +1,4 @@
+import Mechants.AngelSlayer
 import org.apache.spark.graphx.{Edge, EdgeTriplet, Graph, VertexRDD}
 import org.apache.spark.rdd.RDD
 import org.apache.spark.{SparkConf, SparkContext}
@@ -14,6 +15,7 @@ object main {
 
     val indexedCreatureArray = initCombat1()
 
+    val indexedCreatureArray2 = initCombat2()
 
     // creation of the graph
     val graph = GraphMaker(indexedCreatureArray, sc)
@@ -77,23 +79,23 @@ object main {
   def initCombat1(): Array[(Long, Creature)] = {
 
     val solar: Creature = new Solar(1L)
-    val worgRider1 = new WorgRider(2L)
-    val worgRider2 = new WorgRider(3L)
-    val worgRider3 = new WorgRider(4L)
-    val worgRider4 = new WorgRider(5L)
-    val worgRider6 = new WorgRider(6L)
-    val worgRider7 = new WorgRider(7L)
-    val worgRider5 = new WorgRider(8L)
-    val worgRider8 = new WorgRider(9L)
-    val worgRider9 = new WorgRider(10L)
-    val barbare1 = new Barbare(11L)
-    val barbare2 = new Barbare(12L)
-    val barbare3 = new Barbare(13L)
-    val barbare4 = new Barbare(14L)
-    val warlord = new Warlord(15L)
+    val worgRider1: Creature = new WorgRider(2L)
+    val worgRider2: Creature = new WorgRider(3L)
+    val worgRider3: Creature = new WorgRider(4L)
+    val worgRider4: Creature = new WorgRider(5L)
+    val worgRider6: Creature = new WorgRider(6L)
+    val worgRider7: Creature = new WorgRider(7L)
+    val worgRider5: Creature = new WorgRider(8L)
+    val worgRider8: Creature = new WorgRider(9L)
+    val worgRider9: Creature = new WorgRider(10L)
+    val barbare1: Creature = new Barbare(11L)
+    val barbare2: Creature = new Barbare(12L)
+    val barbare3: Creature = new Barbare(13L)
+    val barbare4: Creature = new Barbare(14L)
+    val warlord: Creature = new Warlord(15L)
 
     //creation de l'array de Creatures
-    def creatureArray = Array(
+    val creatureArray = Array(
       (solar.vertexId, solar),
       (worgRider1.vertexId, worgRider1),
       (worgRider2.vertexId, worgRider2),
@@ -117,17 +119,44 @@ object main {
 
   def initCombat2(): Array[(Long, Creature)] = {
 
+    //GENTILS
     val solar: Creature = new Solar(1L)
-    //TODO
-    //1 Solar 2 Planetar, 2 Monavic Dena, 5 Astral Deva
-    //1 dragon, 200 OrcBarbare, 10 AngelSlayer
-    //utiliser un map pour initialiser les 200 orcs
+    val platenar1: Creature = new Planetar(2L)
+    val platenar2: Creature  = new Planetar(3L)
+    val monavicDena1: Creature = new MonavicDena(4L)
+    val monavicDena2: Creature = new MonavicDena(5L)
+    val astralDena1: Creature = new AstralDena(6L)
+    val astralDena2: Creature = new AstralDena(7L)
+    val astralDena3: Creature = new AstralDena(8L)
+    val astralDena4: Creature = new AstralDena(9L)
+    val astralDena5: Creature = new AstralDena(10L)
 
-    //creation de l'array de Creatures
-    def creatureArray = Array(
-      (solar.vertexId, solar)
+    //MECHANTS
+    val dragon: Creature = new Dragon(11L)
+    val slayerArray: Array[(Long,Creature)] = Array.tabulate(10) { i =>
+      ((i+12).toLong,new AngelSlayer(i+12))
+    }
+
+    val orcbArray: Array[(Long,Creature)] = Array.tabulate(100) { i =>
+      ((i+22).toLong,new OrcBarbare(i+22))
+    }
+
+    val firstArray: Array[(Long, Creature)] = Array(
+      (solar.vertexId,solar),
+      (platenar1.vertexId,platenar1),
+      (platenar2.vertexId,platenar2),
+      (monavicDena1.vertexId,monavicDena1),
+      (monavicDena2.vertexId,monavicDena2),
+      (astralDena1.vertexId,astralDena1),
+      (astralDena2.vertexId,astralDena2),
+      (astralDena3.vertexId,astralDena3),
+      (astralDena4.vertexId,astralDena4),
+      (astralDena5.vertexId,astralDena5),
+      (dragon.vertexId,dragon)
     )
 
+    val creatureArray = firstArray++slayerArray++orcbArray
+    creatureArray.foreach(c => println(c))
     creatureArray
 
   }

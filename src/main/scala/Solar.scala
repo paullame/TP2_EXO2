@@ -33,6 +33,18 @@ class Solar(monVertexId: Long) extends Creature(monVertexId) {
     }
   }
 
+  //this methode chech the edge attribute (distance) and if
+  // the creature are less than an distance we can attack
+  override def checkCanAttack(edgeAttr: Int): Unit = {
+    if (edgeAttr > 10) { //reach
+      canAttack = false
+    }
+    else {
+      canAttack = true
+    }
+
+  }
+
   override def attaqueMelee(creature: Creature): Int = {
     var attackLeft: Int = nbAtk
     var precisionLeft: Int = prec

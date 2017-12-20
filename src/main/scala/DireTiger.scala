@@ -10,7 +10,7 @@ class DireTiger(monVertexId: VertexId) extends Creature(monVertexId){
   val prec: Int = 17
   val atkDice: Int = 4
   val nbDice: Int =8
-  val vit: Int = _
+  val vit: Int = 40
   var canAttack: Boolean = _
   val equipe: Boolean = _
   val regen: Int = _
@@ -20,6 +20,18 @@ class DireTiger(monVertexId: VertexId) extends Creature(monVertexId){
 
     val damages = specialAttack(creature)
     return damages
+
+  }
+
+  //this methode chech the edge attribute (distance) and if
+  // the creature are less than an distance we can attack
+  override def checkCanAttack(edgeAttr: Int): Unit = {
+    if (edgeAttr > 5) { //reach offense
+      canAttack = false
+    }
+    else {
+      canAttack = true
+    }
 
   }
 

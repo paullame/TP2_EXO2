@@ -10,7 +10,7 @@ class OrcBarbare(monVertexId: VertexId) extends Creature(monVertexId){
   val prec: Int = 15
   val atkDice: Int = 12
   val nbDice: Int = 1
-  val vit: Int = _
+  val vit: Int = 40
   var canAttack: Boolean = _
   val regen: Int = 0
   val equipe: Boolean = _
@@ -19,6 +19,20 @@ class OrcBarbare(monVertexId: VertexId) extends Creature(monVertexId){
     val damages = attaqueMelee(creature)
     return damages
   }
+
+
+  //this methode chech the edge attribute (distance) and if
+  // the creature are less than an distance we can attack
+  override def checkCanAttack(edgeAttr: Int): Unit = {
+    if (edgeAttr > 2) { //default
+      canAttack = false
+    }
+    else {
+      canAttack = true
+    }
+
+  }
+
 
   def attaqueMelee(creature: Creature): Int = {
 

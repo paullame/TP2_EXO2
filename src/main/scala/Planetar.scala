@@ -10,7 +10,7 @@ class Planetar(monVertexId: VertexId) extends Creature(monVertexId) {
   val prec: Int = 32
   val atkDice: Int = 6
   val nbDice: Int = 3
-  val vit: Int = _
+  val vit: Int = 30
   var canAttack: Boolean = _
   val regen: Int = 10
   val equipe: Boolean = _
@@ -18,6 +18,18 @@ class Planetar(monVertexId: VertexId) extends Creature(monVertexId) {
   def attaquer(creature: Creature, vertexId: VertexId): Int = {
     val damages = attaqueMelee(creature)
     return damages
+  }
+
+  //this methode chech the edge attribute (distance) and if
+  // the creature are less than an distance we can attack
+  override def checkCanAttack(edgeAttr: Int): Unit = {
+    if (edgeAttr > 10) { //reach
+      canAttack = false
+    }
+    else {
+      canAttack = true
+    }
+
   }
 
   def attaqueMelee(creature: Creature): Int = {

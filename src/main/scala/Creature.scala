@@ -36,6 +36,8 @@ abstract class Creature(monVertexId: Long) extends Serializable {
   def attaqueMelee(creature: Creature): Int
 
 
+  //this methode chech the edge attribute (distance) and if
+  // the creature are less than an distance we can attack
   def checkCanAttack(edgeAttr: Int): Unit = {
     if (edgeAttr > 2) {
       canAttack = false
@@ -46,8 +48,17 @@ abstract class Creature(monVertexId: Long) extends Serializable {
 
   }
 
-  def deplacer(edgeAttr: Int): Int = {
-    edgeAttr - vit
+  //deplacement vers le solar
+  def deplacerEx1(edgeAttr: Int): Int = {
+    val zero = 0
+    var distance = edgeAttr - vit
+
+    //reduce the distance between the "mechant" and the solar check if value is > 0
+    if (distance > zero)
+      return distance
+    else
+      return zero
+
   }
 
   /*  def choseTarget(): VertexId = {

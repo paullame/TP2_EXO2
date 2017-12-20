@@ -8,9 +8,9 @@ class AngelSlayer(monVertexId: VertexId) extends Creature(monVertexId){
   val arm: Int = 23+6
   val nbAtk: Int = 14
   val prec: Int = 24
-  val atkDice: Int = _
-  val nbDice: Int = _
-  val vit: Int = _
+  val atkDice: Int = 8
+  val nbDice: Int = 1
+  val vit: Int = 40
   var canAttack: Boolean = _
   val equipe: Boolean = _
   val regen: Int = _
@@ -19,6 +19,18 @@ class AngelSlayer(monVertexId: VertexId) extends Creature(monVertexId){
   def attaquer(creature: Creature, vertexId: VertexId): Int = {
     val damages = attaqueRanged(creature)
     return damages
+  }
+
+  //this methode chech the edge attribute (distance) and if
+  // the creature are less than an distance we can attack
+  override def checkCanAttack(edgeAttr: Int): Unit = {
+    if (edgeAttr > 2) { //default 2
+      canAttack = false
+    }
+    else {
+      canAttack = true
+    }
+
   }
 
 

@@ -23,6 +23,18 @@ class GreatWyrm (monVertexId: VertexId) extends Creature(monVertexId) {
     return damages
   }
 
+  //this methode chech the edge attribute (distance) and if
+  // the creature are less than an distance we can attack
+  override def checkCanAttack(edgeAttr: Int): Unit = {
+    if (edgeAttr > 20) { //reach
+      canAttack = false
+    }
+    else {
+      canAttack = true
+    }
+
+  }
+
   def attaqueMelee(creature: Creature): Int = {
 
     var attackDispo: Int = nbAtk

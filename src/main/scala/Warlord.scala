@@ -16,13 +16,25 @@ class Warlord(monVertexId: Long) extends Creature(monVertexId) {
   val prec = 20
   val atkDice = 8
   val nbDice = 1
-  val vit = 20
+  val vit = 30
   var canAttack = false
   val regen: Int = 0
   val equipe = false // gentils = true et méchants =false
 
   override def attaquer(creature: Creature, vertexId: VertexId): Int = {
     attaqueMelee(creature)
+  }
+
+  //this methode chech the edge attribute (distance) and if
+  // the creature are less than an distance we can attack
+  override def checkCanAttack(edgeAttr: Int): Unit = {
+    if (edgeAttr > 2) { //default
+      canAttack = false
+    }
+    else {
+      canAttack = true
+    }
+
   }
 
 

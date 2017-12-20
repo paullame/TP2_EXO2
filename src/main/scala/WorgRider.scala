@@ -29,6 +29,18 @@ class WorgRider(monVertexId: Long) extends Creature(monVertexId) {
 
   }
 
+  //this methode chech the edge attribute (distance) and if
+  // the creature are less than an distance we can attack
+  override def checkCanAttack(edgeAttr: Int): Unit = {
+    if (edgeAttr > 2) { //default
+      canAttack = false
+    }
+    else {
+      canAttack = true
+    }
+
+  }
+
 
   /*This method implemente the fight as a melee and return the damages inflicts
 * parameter :  the target an Creature

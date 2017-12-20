@@ -9,6 +9,7 @@ class Barbare(monVertexId: Long) extends Creature(monVertexId) {
 
   val nom: String = "Barbare"
   var vie: Int = 142
+  var vieMax: Int = 142
   val atk: Int = 10
   val arm: Int = 17
   val nbAtk: Int = 3
@@ -21,7 +22,8 @@ class Barbare(monVertexId: Long) extends Creature(monVertexId) {
   val equipe: Boolean = false
 
   override def attaquer(creature: Creature, vertexId: VertexId): Int = {
-    attaqueMelee(creature)
+    val damages = attaqueMelee(creature)
+    return damages
   }
 
 

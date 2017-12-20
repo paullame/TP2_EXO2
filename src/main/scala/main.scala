@@ -13,26 +13,31 @@ object main {
     val sc = new SparkContext(conf)
     sc.setLogLevel("ERROR")
 
+    //EXERCICE 1
     val indexedCreatureArray = initCombat1()
-
-    val indexedCreatureArray2 = initCombat2()
-
     // creation of the graph
     var graph = GraphMaker(indexedCreatureArray, sc)
 
+    //EXERCICE 2
+    val indexedCreatureArray2 = initCombat2()
+    // creation of the graph:
+    var graph2 = GraphMaker(indexedCreatureArray2, sc)
 
     afficherVertices(graph)
     afficherTriplets(graph)
 
+    //EXERCICE 1
     val NB_GENTILS: Long= 1
     val NB_MECHANTS: Long = 14
+
+    //EXERCICE 2
     val NB_GENTILS2: Long = 10
     val NB_MECHANTS2: Long = 211
 
     var mortsGentils: LongAccumulator = sc.longAccumulator("Nombre de gentils morts")
     var mortsMechants: LongAccumulator = sc.longAccumulator("Nombre de méchants morts")
 
-    while (mortsGentils.value < NB_GENTILS || mortsMechants.value<NB_MECHANTS) {
+    while (mortsGentils.value < NB_GENTILS || mortsMechants.value < NB_MECHANTS) {
 
       //deplacement des creatures
       graph = graph.mapTriplets(e => {
@@ -49,35 +54,54 @@ object main {
 
       // 2 fonctions sndMessages et mergeMessages
       //logique de fusion des messages
-      // @TODO passer les fonctions anynomes dans de vraies fonctions
-      println("DEBUT FONCTION AGGREGATE")
-      val olderFollowers: VertexRDD[(Message)] = graph.aggregateMessages[(Message)](
-        triplet => { // Map Function
 
-          //TODO logique d'attaque = le solar attaque un monstre aleatoirement, ou le plus près.
-          if (triplet.dstId == 2L) {
-
-            triplet.srcAttr.regeneration()
-
-            def gentils = Message(triplet.srcAttr.attaqueMelee(triplet.dstAttr))
-
-            triplet.sendToDst(gentils)
-
-          }
-
-          if (triplet.dstAttr.canAttack) {
-            def mechants = Message(triplet.dstAttr.attaqueMelee(triplet.srcAttr)) // message est une case class donc pas besoin d'utiliser le mot clé "new"
-            triplet.sendToSrc(mechants)
-          }
+      val vertex = attack()
 
 
-        },
-        // Add damage
-        (a, b) => Message(a.damage + b.damage) // Reduce Function
-      )
+
+
+
+
+
+      //this method launch the attaqueMelee send a message with the dammage
+      def attack(): VertexRDD[(Message)] ={
+
+        println("DEBUT FONCTION AGGREGATE")
+        val vertex: VertexRDD[(Message)] = graph.aggregateMessages[(Message)](
+          triplet => { // Map Function
+
+            //TODO logique d'attaque = le solar attaque un monstre aleatoirement, ou le plus près.
+            if (triplet.dstId == 2L) {
+
+              triplet.srcAttr.regeneration()
+
+              def gentils = Message(triplet.srcAttr.attaqueMelee(triplet.dstAttr))
+
+              triplet.sendToDst(gentils)
+
+            }
+
+            if (triplet.dstAttr.canAttack) {
+              def mechants = Message(triplet.dstAttr.attaqueMelee(triplet.srcAttr)) // message est une case class donc pas besoin d'utiliser le mot clé "new"
+              triplet.sendToSrc(mechants)
+            }
+
+          },
+          // Add damage
+          (a, b) => Message(a.damage + b.damage) // Reduce Function
+        )
+
+        return vertex
+
+      }
+
+
+
+
+
 
       //envoie des dégats
-      graph = graph.joinVertices(olderFollowers)((_, crea, message) => crea.update(message))
+      graph = graph.joinVertices(vertex)((_, crea, message) => crea.update(message))
 
       graph.vertices.collect()foreach {
         case (_, creature) =>
@@ -97,11 +121,6 @@ object main {
       afficherTriplets(graph)
 
     }
-
-
-
-
-
 
   }
 
@@ -162,10 +181,11 @@ object main {
     val astralDena5: Creature = new AstralDena(10L)
 
     //MECHANTS
-    val dragon: Creature = new Dragon(11L)
+    val greatWyrm: Creature = new GreatWyrm(11L)
     val slayerArray: Array[(Long,Creature)] = Array.tabulate(10) { i =>
       ((i+12).toLong,new AngelSlayer(i+12))
     }
+
 
     val orcbArray: Array[(Long,Creature)] = Array.tabulate(100) { i =>
       ((i+22).toLong,new OrcBarbare(i+22))
@@ -182,7 +202,7 @@ object main {
       (astralDena3.vertexId,astralDena3),
       (astralDena4.vertexId,astralDena4),
       (astralDena5.vertexId,astralDena5),
-      (dragon.vertexId,dragon)
+      (greatWyrm.vertexId,greatWyrm)
     )
 
     val creatureArray = firstArray++slayerArray++orcbArray

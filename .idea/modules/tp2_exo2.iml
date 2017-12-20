@@ -182,5 +182,6 @@
         </SOURCES>
       </library>
     </orderEntry>
+    <orderEntry type="library" name="jars" level="application" />
   </component>
 </module>

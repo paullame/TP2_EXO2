@@ -9,6 +9,7 @@ class Solar(monVertexId: Long) extends Creature(monVertexId) {
 
   val nom = "Solar"
   var vie = 363
+  var vieMax: Int = 363
   val atk = 18
   val arm = 44
   val nbAtk = 4

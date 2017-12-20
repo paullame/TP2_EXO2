@@ -1,1 +1,6 @@
-case class Message(damage: Int) //TODO completer la classe
+//TODO completer la classe
+case class Message(damage: Int){
+
+
+
+}

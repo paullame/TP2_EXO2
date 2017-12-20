@@ -10,6 +10,7 @@ class WorgRider(monVertexId: Long) extends Creature(monVertexId) {
 
   val nom = "Worg Rider"
   var vie = 13
+  var vieMax: Int = 13
   val atk = 6
   val arm = 18
   val nbAtk = 1

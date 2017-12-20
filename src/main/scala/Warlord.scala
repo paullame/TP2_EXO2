@@ -9,6 +9,7 @@ class Warlord(monVertexId: Long) extends Creature(monVertexId) {
 
   val nom = "Warlord"
   var vie = 141
+  var vieMax: Int = 141
   val atk = 10
   val arm = 27
   val nbAtk = 3

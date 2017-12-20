@@ -13,6 +13,7 @@ abstract class Creature(monVertexId: Long) extends Serializable {
   val nom: String
   val vertexId: Long = monVertexId
   var vie: Int
+  var vieMax: Int
   val atk: Int
   val arm: Int
   val nbAtk: Int
@@ -67,6 +68,11 @@ abstract class Creature(monVertexId: Long) extends Serializable {
 
   def regeneration(): Unit = {
     vie += regen
+
+    //limit the level of live during the regeneration
+    // at the top fo the live value (vieMax)
+    vie = math.min(this.vie+regen, vieMax)
+
   }
 
 

@@ -1,6 +1,6 @@
-import Mechants.AngelSlayer
 import org.apache.spark.graphx.{Edge, EdgeTriplet, Graph, VertexRDD}
 import org.apache.spark.rdd.RDD
+import org.apache.spark.util.LongAccumulator
 import org.apache.spark.{SparkConf, SparkContext}
 
 
@@ -18,59 +18,89 @@ object main {
     val indexedCreatureArray2 = initCombat2()
 
     // creation of the graph
-    val graph = GraphMaker(indexedCreatureArray, sc)
+    var graph = GraphMaker(indexedCreatureArray, sc)
 
 
     afficherVertices(graph)
     afficherTriplets(graph)
 
+    val NB_GENTILS: Long= 1
+    val NB_MECHANTS: Long = 14
+    val NB_GENTILS2: Long = 10
+    val NB_MECHANTS2: Long = 211
 
-    val resultDeplacement: Graph[Creature, Int] = graph.mapTriplets(e => {
-      e.dstAttr.checkCanAttack(e.attr)
-      if (!e.dstAttr.canAttack) {
-        e.dstAttr.deplacer(e.attr)
-      }
-      else {
-        e.attr
-      }
-    })
+    var mortsGentils: LongAccumulator = sc.longAccumulator("Nombre de gentils morts")
+    var mortsMechants: LongAccumulator = sc.longAccumulator("Nombre de méchants morts")
 
+    while (mortsGentils.value < NB_GENTILS || mortsMechants.value<NB_MECHANTS) {
 
-
-    // 2 fonction sndMessages et mergeMessages
-    //logique de fusion des messages
-    // @TODO passer les fonctions anynomes dans de vraies fonctions
-    println("DEBUT FONCTION AGGREGATE")
-    val olderFollowers: VertexRDD[(Message)] = resultDeplacement.aggregateMessages[(Message)](
-      triplet => { // Map Function
-
-        //TODO logique d'attaque = le solar attaque un monstre aleatoirement, ou le plus près.
-        if (triplet.dstId == 2L) {
-
-          def gentils = Message(triplet.srcAttr.attaqueMelee(triplet.dstAttr))
-
-          triplet.sendToDst(gentils)
-
+      //deplacement des creatures
+      graph = graph.mapTriplets(e => {
+        e.dstAttr.checkCanAttack(e.attr)
+        if (!e.dstAttr.canAttack) {
+          e.dstAttr.deplacer(e.attr)
         }
-
-        if (triplet.dstAttr.canAttack) {
-          def mechants = Message(triplet.dstAttr.attaqueMelee(triplet.srcAttr)) // message est une case class donc pas besoin d'utiliser le mot clé "new"
-          triplet.sendToSrc(mechants)
+        else {
+          e.attr
         }
+      })
 
 
-      },
-      // Add damage
-      (a, b) => Message(a.damage + b.damage) // Reduce Function
-    )
+
+      // 2 fonctions sndMessages et mergeMessages
+      //logique de fusion des messages
+      // @TODO passer les fonctions anynomes dans de vraies fonctions
+      println("DEBUT FONCTION AGGREGATE")
+      val olderFollowers: VertexRDD[(Message)] = graph.aggregateMessages[(Message)](
+        triplet => { // Map Function
+
+          //TODO logique d'attaque = le solar attaque un monstre aleatoirement, ou le plus près.
+          if (triplet.dstId == 2L) {
+
+            triplet.srcAttr.regeneration()
+
+            def gentils = Message(triplet.srcAttr.attaqueMelee(triplet.dstAttr))
+
+            triplet.sendToDst(gentils)
+
+          }
+
+          if (triplet.dstAttr.canAttack) {
+            def mechants = Message(triplet.dstAttr.attaqueMelee(triplet.srcAttr)) // message est une case class donc pas besoin d'utiliser le mot clé "new"
+            triplet.sendToSrc(mechants)
+          }
 
 
-    // update des distances dans les arretes
-    val resultCombat: Graph[Creature, Int] = resultDeplacement.joinVertices(olderFollowers)((id, crea, message) => crea.update(message))
+        },
+        // Add damage
+        (a, b) => Message(a.damage + b.damage) // Reduce Function
+      )
+
+      //envoie des dégats
+      graph = graph.joinVertices(olderFollowers)((_, crea, message) => crea.update(message))
+
+      graph.vertices.collect()foreach {
+        case (_, creature) =>
+          if(creature.isDead() && creature.equipe) {
+            mortsGentils.add(1)
+          }
+          else if(creature.isDead() && !creature.equipe) {
+            mortsMechants.add(1)
+          }
+
+      }
+
+      //suppression des morts
+      graph = graph.subgraph(e => e.srcAttr.isDead() || e.dstAttr.isDead(), (_, creature) => creature.isDead())
+
+      afficherVertices(graph)
+      afficherTriplets(graph)
+
+    }
 
 
-    afficherVertices(resultCombat)
-    afficherTriplets(resultCombat)
+
+
 
 
   }
@@ -180,13 +210,13 @@ object main {
 
     //val graph: Graph[Creature, Int] = Graph(vertexRDD, edgeRDD, defaultCreature)
     val graph = Graph(vertexRDD, edgeRDD, defaultCreature)
-    return graph
+    graph
   }
 
   def afficherVertices(graph: Graph[Creature, Int]): Unit = {
     println("on imprime les vertices du graphe" + graph.toString)
     graph.vertices.collect.foreach {
-      case (id, creature) => println(s"la creature est ${creature.nom}, son vertexId est ${id} et et ses hp sont ${creature.vie} ")
+      case (id, creature) => println(s"la creature est ${creature.nom}, son vertexId est $id et et ses hp sont ${creature.vie} ")
     }
     println("\n")
     println("\n")

@@ -11,9 +11,12 @@ class OrcBarbare(monVertexId: VertexId) extends Creature(monVertexId){
   val nbDice: Int = _
   val vit: Int = _
   var canAttack: Boolean = _
+  val regen: Int = 0
   val equipe: Boolean = _
 
   def attaquer(creature: Creature, vertexId: VertexId): Int = ???
 
   def attaqueMelee(creature: Creature): Int = ???
+
+
 }

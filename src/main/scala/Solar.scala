@@ -17,14 +17,13 @@ class Solar(monVertexId: Long) extends Creature(monVertexId) {
   val nbDice = 3
   val vit = 50
   var canAttack = true
+  val regen = 15
   val equipe = true //gentils = true et méchants = false
 
-  //nouvel attribut
-  val regen = 15 //TODO implementer la regeneration
 
 
   override def attaquer(creature: Creature, vertexId: VertexId): Int = {
-    if (vertexId > 2) {
+    if (vertexId > 5) {
       attaqueDistance(creature)
     }
     else {
@@ -80,6 +79,8 @@ class Solar(monVertexId: Long) extends Creature(monVertexId) {
     }
     totalDamage
   }
+
+
 
 
 }

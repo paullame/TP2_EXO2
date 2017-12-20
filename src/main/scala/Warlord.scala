@@ -17,6 +17,7 @@ class Warlord(monVertexId: Long) extends Creature(monVertexId) {
   val nbDice = 1
   val vit = 20
   var canAttack = false
+  val regen: Int = 0
   val equipe = false // gentils = true et méchants =false
 
   override def attaquer(creature: Creature, vertexId: VertexId): Int = {
@@ -51,6 +52,7 @@ class Warlord(monVertexId: Long) extends Creature(monVertexId) {
     }
     totalDamage
   }
+
 
 
 }

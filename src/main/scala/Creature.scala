@@ -21,6 +21,7 @@ abstract class Creature(monVertexId: Long) extends Serializable {
   val nbDice: Int
   val vit: Int
   var canAttack: Boolean
+  val regen: Int
   val equipe: Boolean //gentils = true et méchants = false
 
 
@@ -62,6 +63,20 @@ abstract class Creature(monVertexId: Long) extends Serializable {
   def update(message: Message): Creature = {
     this.vie -= message.damage
     this
+  }
+
+  def regeneration(): Unit = {
+    vie += regen
+  }
+
+
+  def isDead(): Boolean = {
+    if (vie<=0) {
+      true
+    }
+    else {
+      false
+    }
   }
 
 }

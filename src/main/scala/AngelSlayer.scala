@@ -16,4 +16,10 @@ class AngelSlayer(monVertexId: VertexId) extends Creature(monVertexId){
   def attaquer(creature: Creature, vertexId: VertexId): Int = ???
 
   def attaqueMelee(creature: Creature): Int = ???
+
+  val regen: Int = _
+
+
+
+
 }

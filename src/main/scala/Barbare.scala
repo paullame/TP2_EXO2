@@ -17,6 +17,7 @@ class Barbare(monVertexId: Long) extends Creature(monVertexId) {
   val nbDice: Int = 1
   val vit: Int = 40
   var canAttack = false
+  val regen: Int = 0
   val equipe: Boolean = false
 
   override def attaquer(creature: Creature, vertexId: VertexId): Int = {
@@ -51,6 +52,8 @@ class Barbare(monVertexId: Long) extends Creature(monVertexId) {
     }
     totalDamage
   }
+
+
 
 
 }

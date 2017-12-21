@@ -4,16 +4,16 @@ class OrcBarbare(monVertexId: VertexId) extends Creature(monVertexId){
   val nom: String = "Greataxe Orc (Orc Barbarian 4)"
   var vie: Int = 42
   val vieMax: Int = 42
-  val atk: Int = 4
-  val arm: Int = _
-  val nbAtk: Int = _
-  val prec: Int = 15
+  val atk: Int = 10
+  val arm: Int = 15
+  val nbAtk: Int = 1
+  val prec: Int = 11
   val atkDice: Int = 12
   val nbDice: Int = 1
-  val vit: Int = 40
-  var canAttack: Boolean = _
+  val vit: Int = 30
+  var canAttack: Boolean = false
   val regen: Int = 0
-  val equipe: Boolean = _
+  val equipe: Boolean = false //true = gentils false = méchants
 
   def attaquer(creature: Creature, vertexId: VertexId): Int = {
     val damages = attaqueMelee(creature)
@@ -33,31 +33,6 @@ class OrcBarbare(monVertexId: VertexId) extends Creature(monVertexId){
 
   }
 
-
-  def attaqueMelee(creature: Creature): Int = {
-
-    var attackDispo: Int = nbAtk
-    var precision: Int = prec
-    var totalDamage: Int = 0
-
-    while (attackDispo > 0 && vie > 0)
-    {
-      if (creature.vie > 0) {
-        val calc: Int = (Dice.launch(1, 8) + precision)
-        val touch = 10 + calc
-        if (touch >= creature.arm) {
-          val degat = Dice.launch(nbDice, atkDice) + atk
-          creature.takeDamage(degat)
-          totalDamage += degat
-          if (creature.vie <= 0)
-            creature.die()
-        }
-      }
-      precision -= 5
-      attackDispo -= 1
-    }
-    totalDamage
-  }
 
 
 

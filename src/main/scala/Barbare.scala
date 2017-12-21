@@ -41,35 +41,6 @@ class Barbare(monVertexId: Long) extends Creature(monVertexId) {
 
 
 
-  /*This method implemente the fight as a melee and return the damages inflicts
-  * parameter :  the target an Creature
-  * output : Int : the total damage value
-  */
-  override def attaqueMelee(creature: Creature): Int = {
-
-    var attackLeft: Int = nbAtk
-    var precisionLeft: Int = prec
-    var totalDamage: Int = 0
-
-    while (attackLeft > 0 && vie > 0) // && distance <= 5)
-    {
-      if (creature.vie > 0) {
-        val touch: Int = Dice.launch(1, 20) + precisionLeft
-        if (touch >= creature.arm) {
-          val degat = Dice.launch(nbDice, atkDice) + atk
-          creature.takeDamage(degat)
-          totalDamage += degat
-          if (creature.vie <= 0)
-            creature.die()
-        }
-      }
-      precisionLeft -= 5
-      attackLeft -= 1
-    }
-    totalDamage
-  }
-
-
 
 
 }

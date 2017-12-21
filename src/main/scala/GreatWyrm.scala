@@ -7,20 +7,20 @@ class GreatWyrm (monVertexId: VertexId) extends Creature(monVertexId) {
   val nom: String = "Green Dragon, Great Wyrm"
   var vie: Int = 391
   val vieMax: Int = 391
-  val atk: Int = 27
-  val arm: Int = _
-  val nbAtk: Int = _
-  val prec: Int = 37
+  val atk: Int = 21
+  val arm: Int = 37
+  val nbAtk: Int = 1 //TODO Attaque jet d'acide, sort de zone.
+  val prec: Int = 33
   val atkDice: Int = 8
   val nbDice: Int = 4
-  val vit: Int = _
-  var canAttack: Boolean = _
-  val regen: Int = 10
-  val equipe: Boolean = _
+  val vit: Int = 250
+  var canAttack: Boolean = true
+  val regen: Int = 0
+  val equipe: Boolean = false
 
   def attaquer(creature: Creature, vertexId: VertexId): Int = {
     val damages = specialAttack(creature)
-    return damages
+    damages
   }
 
   //this methode chech the edge attribute (distance) and if
@@ -35,39 +35,6 @@ class GreatWyrm (monVertexId: VertexId) extends Creature(monVertexId) {
 
   }
 
-  def attaqueMelee(creature: Creature): Int = {
-
-    var attackDispo: Int = nbAtk
-    var precision: Int = prec
-    var totalDamage: Int = 0
-    val strengh = Array(33, 33, 31, 31)
-    var i = 0
-
-    while (attackDispo > 0 && vie > 0)
-    {
-
-      //strenth counter
-      if(i<3)
-        i += 1
-
-
-      if (creature.vie > 0) {
-        var calc: Int = (Dice.launch(4, 8) + precision)
-        calc += strengh(i)
-        val touch = 2 * calc
-        if (touch >= creature.arm) {
-          val degat = Dice.launch(nbDice, atkDice) + atk
-          creature.takeDamage(degat)
-          totalDamage += degat
-          if (creature.vie <= 0)
-            creature.die()
-        }
-      }
-      precision -= 5
-      attackDispo -= 1
-    }
-    totalDamage
-  }
 
 
 
@@ -140,7 +107,7 @@ class GreatWyrm (monVertexId: VertexId) extends Creature(monVertexId) {
     }
 
 
-    return damages
+    damages
 
   }
 

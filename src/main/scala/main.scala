@@ -81,7 +81,7 @@ object main {
           (a, b) => Message(a.damage + b.damage) // Reduce Function
         )
 
-        return vertex
+        vertex
 
       }
 
@@ -91,17 +91,17 @@ object main {
 
       graph.vertices.collect()foreach {
         case (_, creature) =>
-          if(creature.isDead() && creature.equipe) {
+          if(creature.isDead && creature.equipe) {
             mortsGentilsEx1.add(1)
           }
-          else if(creature.isDead() && !creature.equipe) {
+          else if(creature.isDead && !creature.equipe) {
             mortsMechantsEx1.add(1)
           }
 
       }
 
       //suppression des morts
-      graph = graph.subgraph(e => e.srcAttr.isDead() || e.dstAttr.isDead(), (_, creature) => creature.isDead())
+      graph = graph.subgraph(e => e.srcAttr.isDead || e.dstAttr.isDead, (_, creature) => creature.isDead)
 
       afficherVertices(graph)
       afficherTriplets(graph)
@@ -308,7 +308,7 @@ object main {
 
     //val graph: Graph[Creature, Int] = Graph(vertexRDD, edgeRDD, defaultCreature)
     val graph = Graph(vertexRDD, edgeRDD, defaultCreature)
-    return graph
+    graph
   }
 
 

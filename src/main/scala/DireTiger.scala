@@ -1,25 +1,25 @@
 import org.apache.spark.graphx.VertexId
 
-class DireTiger(monVertexId: VertexId) extends Creature(monVertexId){
+class DireTiger(monVertexId: VertexId, monEquipe: Boolean) extends Creature(monVertexId){
   val nom: String = "Dire Tiger (Cat, Great)"
   var vie: Int = 105
   val vieMax: Int = 105
-  val atk: Int = 10
-  val arm: Int = _
-  val nbAtk: Int = _
-  val prec: Int = 17
+  val atk: Int = 8
+  val arm: Int = 17
+  val nbAtk: Int = 1
+  val prec: Int = 18
   val atkDice: Int = 4
-  val nbDice: Int =8
+  val nbDice: Int =2
   val vit: Int = 40
-  var canAttack: Boolean = _
-  val equipe: Boolean = _
-  val regen: Int = _
+  var canAttack: Boolean = false
+  val equipe: Boolean = monEquipe // TODO trouver une solution car peut etre méchant et gentil
+  val regen: Int = 0
 
 
   def attaquer(creature: Creature, vertexId: VertexId): Int = {
 
     val damages = specialAttack(creature)
-    return damages
+    damages
 
   }
 
@@ -63,35 +63,6 @@ class DireTiger(monVertexId: VertexId) extends Creature(monVertexId){
 
 
 
-  def attaqueMelee(creature: Creature): Int = {
-
-    var attackDispo: Int = nbAtk
-
-    var totalDamage: Int = 0
-
-    var i = 0
-
-    while (attackDispo > 0 && vie > 0)
-    {
-
-
-      if (creature.vie > 0) {
-        var calc: Int = (Dice.launch(2, 4) + 8)
-
-        val touch = 2 * calc
-        if (touch >= creature.arm) {
-          val degat = Dice.launch(nbDice, atkDice) + atk
-          creature.takeDamage(degat)
-          totalDamage += degat
-          if (creature.vie <= 0)
-            creature.die()
-        }
-      }
-
-      attackDispo -= 1
-    }
-    totalDamage
-  }
 
 
 

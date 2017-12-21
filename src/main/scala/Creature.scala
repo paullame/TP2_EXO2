@@ -33,7 +33,28 @@ abstract class Creature(monVertexId: Long) extends Serializable {
   // Attack creature based on atk and nbAtk
   def attaquer(creature: Creature, vertexId: VertexId): Int
 
-  def attaqueMelee(creature: Creature): Int
+  def attaqueMelee(creature: Creature): Int = {
+    var attackLeft: Int = nbAtk
+    var precisionLeft: Int = prec
+    var totalDamage: Int = 0
+
+    while (attackLeft > 0 && vie > 0) // && distance <= 5)
+    {
+      if (creature.vie > 0) {
+        val touch: Int = Dice.launch(1, 20) + precisionLeft
+        if (touch >= creature.arm) {
+          val degat = Dice.launch(nbDice, atkDice) + atk
+          creature.takeDamage(degat)
+          totalDamage += degat
+          if (creature.vie <= 0)
+            creature.die()
+        }
+      }
+      precisionLeft -= 5
+      attackLeft -= 1
+    }
+    totalDamage
+  }
 
 
   //this methode chech the edge attribute (distance) and if
@@ -55,9 +76,9 @@ abstract class Creature(monVertexId: Long) extends Serializable {
 
     //reduce the distance between the "mechant" and the solar check if value is > 0
     if (distance > zero)
-      return distance
+      distance
     else
-      return zero
+      zero
 
   }
 
@@ -87,7 +108,7 @@ abstract class Creature(monVertexId: Long) extends Serializable {
   }
 
 
-  def isDead(): Boolean = {
+  def isDead: Boolean = {
     if (vie<=0) {
       true
     }

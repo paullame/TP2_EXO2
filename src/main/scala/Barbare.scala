@@ -9,38 +9,31 @@ class Barbare(monVertexId: Long) extends Creature(monVertexId) {
 
   val nom: String = "Barbare"
   var vie: Int = 142
-  var vieMax: Int = 142
-  val atk: Int = 10
+  val vieMax: Int = 142
   val arm: Int = 17
-  val nbAtk: Int = 3
-  val prec: Int = 19
-  val atkDice: Int = 8
-  val nbDice: Int = 1
+
+  val meleeAtk: Int = 10
+  val meleenbAtk: Int = 3
+  val meleePrec: Int = 19
+  val meleeAtkDice: Int = 8
+  val meleenbDice: Int = 1
+
+  val distAtk: Int = 0
+  val distnbAtk: Int = 0
+  val distPrec: Int = 0
+  val distAtkDice: Int = 0
+  val distnbDice: Int = 0
+
   val vit: Int = 40
   var canAttack = false
   val regen: Int = 0
   val equipe: Boolean = false
 
-  override def attaquer(creature: Creature, vertexId: VertexId): Int = {
-    val damages = attaqueMelee(creature)
-    return damages
+  def attaquer(creature: Creature, distance: Int): Int = {
+    val degats = attaqueMelee(creature)
+    println("le "+nom+" inflige "+degats+" degats")
+    degats
   }
-
-
-  //this methode chech the edge attribute (distance) and if
-  // the creature are less than an distance we can attack
-  override def checkCanAttack(edgeAttr: Int): Unit = {
-    if (edgeAttr > 2) { //default
-      canAttack = false
-    }
-    else {
-      canAttack = true
-    }
-
-  }
-
-
-
 
 
 }

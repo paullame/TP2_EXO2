@@ -1,42 +1,39 @@
 import org.apache.spark.graphx.VertexId
 
 class OrcBarbare(monVertexId: VertexId) extends Creature(monVertexId){
-  val nom: String = "Greataxe Orc (Orc Barbarian 4)"
+  val nom: String = "Greataxe Orc"
   var vie: Int = 42
   val vieMax: Int = 42
-  val atk: Int = 10
   val arm: Int = 15
-  val nbAtk: Int = 1
-  val prec: Int = 11
-  val atkDice: Int = 12
-  val nbDice: Int = 1
+
+
+  val meleeAtk: Int = 10
+  val meleenbAtk: Int = 1
+  val meleePrec: Int = 11
+  val meleeAtkDice: Int = 12
+  val meleenbDice: Int = 1
+
+  val distAtk: Int = 0
+  val distnbAtk: Int = 0
+  val distPrec: Int = 0
+  val distAtkDice: Int = 0
+  val distnbDice: Int = 0
+
   val vit: Int = 30
   var canAttack: Boolean = false
   val regen: Int = 0
   val equipe: Boolean = false //true = gentils false = méchants
 
-  def attaquer(creature: Creature, vertexId: VertexId): Int = {
-    val damages = attaqueMelee(creature)
-    return damages
-  }
-
-
-  //this methode chech the edge attribute (distance) and if
-  // the creature are less than an distance we can attack
-  override def checkCanAttack(edgeAttr: Int): Unit = {
-    if (edgeAttr > 2) { //default
-      canAttack = false
-    }
-    else {
-      canAttack = true
-    }
-
+  def attaquer(creature: Creature, distance: Int): Int = {
+    attaqueMelee(creature)
   }
 
 
 
 
-  def attaqueRanged(creature : Creature): Int ={
+
+
+/*  def attaqueRanged(creature : Creature): Int ={
      var damages = 0
      var attackDispo: Int = nbAtk
      val strengh = Array(16, 11, 6) // composite longbow
@@ -70,8 +67,7 @@ class OrcBarbare(monVertexId: VertexId) extends Creature(monVertexId){
       attackDispo -= 1
     }
 
-    return damages
-  }
-
+    damages
+  }*/
 
 }

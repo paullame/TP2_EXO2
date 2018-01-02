@@ -1,5 +1,5 @@
 //TODO completer la classe
-case class Message(damage: Int){
+case class Message(damage: Int) extends Serializable {
 
 
 

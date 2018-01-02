@@ -1,11 +1,8 @@
 import org.apache.spark.graphx.VertexId
 
+import scala.util.Random
 
-/*
- * This class is an abstraction for all the creature
- * It contain all the common atrtributs
- * The method attaqueMelee will be implemented for all the specific creature
- */
+
 
 abstract class Creature(monVertexId: Long) extends Serializable {
 
@@ -13,48 +10,82 @@ abstract class Creature(monVertexId: Long) extends Serializable {
   val nom: String
   val vertexId: Long = monVertexId
   var vie: Int
-  var vieMax: Int
-  val atk: Int
+  val vieMax: Int
   val arm: Int
-  val nbAtk: Int
-  val prec: Int
-  val atkDice: Int
-  val nbDice: Int
+
+  //MELEE
+  val meleeAtk: Int
+  val meleenbAtk: Int
+  val meleePrec: Int
+  val meleeAtkDice: Int
+  val meleenbDice: Int
+
+  //DISTANCE
+  val distAtk: Int
+  val distnbAtk: Int
+  val distPrec: Int
+  val distAtkDice: Int
+  val distnbDice: Int
+
   val vit: Int
   var canAttack: Boolean
   val regen: Int
   val equipe: Boolean //gentils = true et méchants = false
 
 
-  def takeDamage(degat: Int): Unit = {
-    vie -= degat
-  }
+
 
   // Attack creature based on atk and nbAtk
-  def attaquer(creature: Creature, vertexId: VertexId): Int
+  def attaquer(creature: Creature, distance: Int): Int
+
+
 
   def attaqueMelee(creature: Creature): Int = {
-    var attackLeft: Int = nbAtk
-    var precisionLeft: Int = prec
+    var attackLeft: Int = meleenbAtk
+    var precisionLeft: Int = meleePrec
     var totalDamage: Int = 0
+    var pvEnemie: Int = creature.vie
 
-    while (attackLeft > 0 && vie > 0) // && distance <= 5)
-    {
-      if (creature.vie > 0) {
+    while (attackLeft > 0 && vie > 0) {
+      if (pvEnemie > 0) {
         val touch: Int = Dice.launch(1, 20) + precisionLeft
         if (touch >= creature.arm) {
-          val degat = Dice.launch(nbDice, atkDice) + atk
-          creature.takeDamage(degat)
+          val degat = Dice.launch(meleenbDice, meleeAtkDice) + meleeAtk
+          pvEnemie -= degat
           totalDamage += degat
-          if (creature.vie <= 0)
-            creature.die()
+
         }
       }
       precisionLeft -= 5
       attackLeft -= 1
     }
     totalDamage
+
   }
+
+  def attaqueDistance(creature: Creature): Int = {
+    var attackLeft: Int = distnbAtk
+    var precisionLeft: Int = distPrec
+    var totalDamage: Int = 0
+    var pvEnemie: Int = creature.vie
+
+    while (attackLeft > 0 && vie > 0) {
+      if (pvEnemie > 0) {
+        val touch: Int = Dice.launch(1, 20) + precisionLeft
+        if (touch >= creature.arm) {
+          val degat = Dice.launch(distnbDice, distAtkDice) + distAtk
+          pvEnemie -= degat
+          totalDamage += degat
+
+        }
+
+      }
+      precisionLeft -= 5
+      attackLeft -= 1
+    }
+    totalDamage
+  }
+
 
 
   //this methode chech the edge attribute (distance) and if
@@ -71,6 +102,7 @@ abstract class Creature(monVertexId: Long) extends Serializable {
 
   //deplacement vers le solar
   def deplacerEx1(edgeAttr: Int): Int = {
+    //println("le "+nom+" se déplace de "+vit+" pieds")
     val zero = 0
     var distance = edgeAttr - vit
 
@@ -87,23 +119,23 @@ abstract class Creature(monVertexId: Long) extends Serializable {
     }*/
 
 
-  def die(): Unit = {
-    this.vie = 0
-  }
+
+
 
   //TODO completer la fonction
   //TODO ajouter la logique de qui attaque qui
   def update(message: Message): Creature = {
+    println(nom+" perd "+message.damage+" points de vie")
     this.vie -= message.damage
     this
   }
 
-  def regeneration(): Unit = {
-    vie += regen
 
+  def regeneration(): Unit = {
+    println(nom+" regenere "+regen+" points de vie ")
     //limit the level of live during the regeneration
-    // at the top fo the live value (vieMax)
-    vie = math.min(this.vie+regen, vieMax)
+    // at the top for the live value (vieMax)
+    vie += math.min(regen, vieMax-vie)
 
   }
 
@@ -118,3 +150,5 @@ abstract class Creature(monVertexId: Long) extends Serializable {
   }
 
 }
+
+

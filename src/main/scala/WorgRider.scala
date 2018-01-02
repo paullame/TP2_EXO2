@@ -10,25 +10,33 @@ class WorgRider(monVertexId: Long) extends Creature(monVertexId) {
 
   val nom = "Worg Rider"
   var vie = 13
-  var vieMax: Int = 13
-  val atk = 6
+  val vieMax: Int = 13
   val arm = 18
-  val nbAtk = 1
-  val prec = 6
-  val atkDice = 8
-  val nbDice = 1
+
+
+  val meleeAtk: Int = 6
+  val meleenbAtk: Int = 1
+  val meleePrec: Int = 6
+  val meleeAtkDice: Int = 8
+  val meleenbDice: Int = 1
+
+  val distAtk: Int = 0
+  val distnbAtk: Int = 0
+  val distPrec: Int = 0
+  val distAtkDice: Int = 0
+  val distnbDice: Int = 0
+
   val vit = 20
   var canAttack = false
   val regen: Int = 0
   val equipe = false //gentils = true et méchants = false
 
 
-  override def attaquer(creature: Creature, vertexId: VertexId): Int = {
+  def attaquer(creature: Creature, distance: Int): Int = {
 
     attaqueMelee(creature)
 
   }
-
 
 
 }

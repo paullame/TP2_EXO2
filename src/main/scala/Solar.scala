@@ -9,13 +9,23 @@ class Solar(monVertexId: Long) extends Creature(monVertexId) {
 
   val nom = "Solar"
   var vie = 363
-  var vieMax: Int = 363
-  val atk = 18
+  val vieMax: Int = 363
   val arm = 44
-  val nbAtk = 4
-  val prec = 35
-  val atkDice = 6
-  val nbDice = 3
+  val reducDmg = 15
+
+  val meleeAtk = 18
+  val meleenbAtk = 4
+  val meleePrec = 35
+  val meleeAtkDice = 6
+  val meleenbDice = 3
+
+  val distAtk: Int = 14
+  val distnbAtk: Int = 4
+  val distPrec: Int = 31
+  val distAtkDice: Int = 2
+  val distnbDice: Int = 6
+
+
   val vit = 50
   var canAttack = true
   val regen = 15
@@ -23,8 +33,8 @@ class Solar(monVertexId: Long) extends Creature(monVertexId) {
 
 
 
-  override def attaquer(creature: Creature, vertexId: VertexId): Int = {
-    if (vertexId > 5) {
+  def attaquer(creature: Creature, distance: Int): Int = {
+    if (distance > 5) {
       attaqueDistance(creature)
     }
     else {
@@ -33,45 +43,12 @@ class Solar(monVertexId: Long) extends Creature(monVertexId) {
     }
   }
 
-  //this methode chech the edge attribute (distance) and if
-  // the creature are less than an distance we can attack
-  override def checkCanAttack(edgeAttr: Int): Unit = {
-    if (edgeAttr > 10) { //reach
-      canAttack = false
-    }
-    else {
-      canAttack = true
-    }
 
+  override def update(message: Message): Creature = {
+    println(nom+" perd "+message.damage+" points de vie")
+    vie -= Math.max(0,message.damage - reducDmg)
+    this
   }
-
-
-
-
-  def attaqueDistance(creature: Creature): Int = {
-
-    var attackLeft: Int = nbAtk
-    var precisionLeft: Int = prec
-    var totalDamage: Int = 0
-
-    while (attackLeft > 0 && vie > 0) // && distance <= 5)
-    {
-      if (creature.vie > 0) {
-        val touch: Int = Dice.launch(1, 20) + precisionLeft
-        if (touch >= creature.arm) {
-          val degat = Dice.launch(nbDice, atkDice) + atk
-          creature.takeDamage(degat)
-          totalDamage += degat
-          if (creature.vie <= 0)
-            creature.die()
-        }
-      }
-      precisionLeft -= 5
-      attackLeft -= 1
-    }
-    totalDamage
-  }
-
 
 
 

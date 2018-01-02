@@ -13,7 +13,7 @@ object Dice {
     var sum = 0
     var compt = 0
 
-    for(compt <- 1 to diceNum){
+    for(compt <- 1 to diceNum) {
       sum += r.nextInt(facesNum)
       sum += 1
     }

@@ -1,22 +1,35 @@
-import org.apache.spark.graphx.{Edge, EdgeTriplet, Graph, VertexRDD}
+import org.apache.spark.graphx._
 import org.apache.spark.rdd.RDD
 import org.apache.spark.util.LongAccumulator
 import org.apache.spark.{SparkConf, SparkContext}
+
+import scala.collection.mutable.ArrayBuffer
+import scala.util.Random
+
+
+
+//TODO IMPLEMENTER SORT DE SOIN
+//TODO DEFINIR LE CHOIX DES ATTAQUES
+//TODO CLEANUP DEPLACEMENT (CanAttack et CheckCanAttack)
+//
+
+
 
 
 object main {
 
   def main(args: Array[String]) {
 
-    val conf = new SparkConf().setAppName("TP2_EXO2").setMaster("local")
+    val conf = new SparkConf().setAppName("TP2_EXO2").setMaster("local[*]")
 
     val sc = new SparkContext(conf)
     sc.setLogLevel("ERROR")
 
-    //...............EXERCICE 1 :
+//----------------------------EXERCICE 1-------------------------------------------------------------
     val indexedCreatureArray = initCombat1()
+
     // creation of the graph
-    var graph = GraphMakerEx1(indexedCreatureArray, sc)
+    var graph:Graph[Creature,Int] = GraphMakerEx1(indexedCreatureArray, sc)
 
     afficherVertices(graph)
     afficherTriplets(graph)
@@ -25,16 +38,17 @@ object main {
     val NB_GENTILS1: Long= 1
     val NB_MECHANTS1: Long = 14
 
-    var mortsGentilsEx1: LongAccumulator = sc.longAccumulator("Nombre de gentils morts Exercice 1")
-    var mortsMechantsEx1: LongAccumulator = sc.longAccumulator("Nombre de méchants morts Exercuce 1")
+
+    val mortsGentilsEx1: LongAccumulator = sc.longAccumulator("Nombre de gentils morts Exercice 1")
+    val mortsMechantsEx1: LongAccumulator = sc.longAccumulator("Nombre de méchants morts Exercice 1")
 
 
 
 
 
 
-    //attaque ex 1
-    while (mortsGentilsEx1.value < NB_GENTILS1 || mortsMechantsEx1.value < NB_MECHANTS1) {
+    //____________BOUCLE__________________
+    while (mortsGentilsEx1.value < NB_GENTILS1 && mortsMechantsEx1.value < NB_MECHANTS1) {
 
       //deplacement des creatures
       graph = graph.mapTriplets(e => {
@@ -47,33 +61,38 @@ object main {
         }
       })
 
+
       // 2 fonctions sndMessages et mergeMessages
       //logique de fusion des messages
 
-      val vertex = attack()
 
       //this method launch the attaqueMelee send a message with the dammages value
-      def attack(): VertexRDD[(Message)] ={
 
+        var vID: ArrayBuffer[Long] = ArrayBuffer()
+        graph.vertices.collect.foreach(v => {
+        vID += v._1
+      })
         println("DEBUT FONCTION AGGREGATE")
-        val vertex: VertexRDD[(Message)] = graph.aggregateMessages[(Message)](
+        def vertex: VertexRDD[(Message)] = graph.aggregateMessages[(Message)](
           triplet => { // Map Function
 
-            //TODO logique d'attaque = le solar attaque un monstre aleatoirement, ou le plus près.
-            if (triplet.dstId == 2L) {
+            //triplet.srcAttr.regeneration()
 
-              triplet.srcAttr.regeneration()
+            //____GENTILS_____
+            if (triplet.dstId == vID(Random.nextInt(vID.length)) ) {
+              println("le solar attaque l'enemi "+triplet.dstId+"("+triplet.dstAttr.nom+")")
 
               //attaqueMelee on triplet.dstAttr, return the damages
-              def gentils = Message(triplet.srcAttr.attaqueMelee(triplet.dstAttr))
+              //val gentils = Message(triplet.srcAttr.attaqueMelee(triplet.dstAttr))
 
-              triplet.sendToDst(gentils)
+              triplet.sendToDst(Message(triplet.srcAttr.attaquer(triplet.dstAttr,triplet.attr)))
 
             }
 
+            //____MECHANTS____
             if (triplet.dstAttr.canAttack) {
-              def mechants = Message(triplet.dstAttr.attaqueMelee(triplet.srcAttr)) // message est une case class donc pas besoin d'utiliser le mot clé "new"
-              triplet.sendToSrc(mechants)
+              //val mechants = Message(triplet.dstAttr.attaqueMelee(triplet.srcAttr)) // message est une case class donc pas besoin d'utiliser le mot clé "new"
+             triplet.sendToSrc(Message(triplet.dstAttr.attaquer(triplet.srcAttr, triplet.attr)))
             }
 
           },
@@ -81,38 +100,43 @@ object main {
           (a, b) => Message(a.damage + b.damage) // Reduce Function
         )
 
-        vertex
+      println("JOIN VERTICES: On Additione les sommets")
 
-      }
-
-
+      //vertex.collect.foreach(println(_))
       //envoie des dégats
-      graph = graph.joinVertices(vertex)((_, crea, message) => crea.update(message))
+     graph = graph.joinVertices(vertex)((_, crea, message) => crea.update(message))
 
-      graph.vertices.collect()foreach {
-        case (_, creature) =>
-          if(creature.isDead && creature.equipe) {
+
+      println("INCREMENTATION DES ACCUMULATORS") //on compte les morts de chaque côté
+
+      graph.vertices.foreach {
+        vertice => {
+          if (vertice._2.isDead && vertice._2.equipe) {
             mortsGentilsEx1.add(1)
           }
-          else if(creature.isDead && !creature.equipe) {
+          else if (vertice._2.isDead && !vertice._2.equipe) {
             mortsMechantsEx1.add(1)
           }
-
+        }
       }
+      println(mortsGentilsEx1.value)
+      println(mortsMechantsEx1.value)
 
-      //suppression des morts
-      graph = graph.subgraph(e => e.srcAttr.isDead || e.dstAttr.isDead, (_, creature) => creature.isDead)
+
+      println("SUPPRESSION DES MORTS") //suppression des morts
+      graph = graph.subgraph(epred = e => !e.srcAttr.isDead && !e.dstAttr.isDead, vpred = (_, creature) => !creature.isDead)
 
       afficherVertices(graph)
       afficherTriplets(graph)
 
     }
+    //____________________FIN_BOUCLE_________________________
 
 
 
 
-    //...............EXERCICE 2 :
-    val indexedCreatureArrayGentils2 = initCombat2Gentils()
+//----------------------------EXERCICE 2---------------------------------------------------------
+/*    val indexedCreatureArrayGentils2 = initCombat2Gentils()
     val indexedCreatureArrayMechants2 = initCombat2Mechants()
 
     // creation of the graph:
@@ -142,7 +166,7 @@ object main {
         continue = false
 
 
-    }
+    }*/
 
 
   }
@@ -150,7 +174,7 @@ object main {
 
 
 
-
+//---------------------------------------FONCTIONS------------------------------------------------
 
 
 
@@ -203,11 +227,11 @@ object main {
     val platenar2: Creature  = new Planetar(3L)
     val monavicDena1: Creature = new MonavicDena(4L)
     val monavicDena2: Creature = new MonavicDena(5L)
-    val astralDena1: Creature = new AstralDena(6L)
-    val astralDena2: Creature = new AstralDena(7L)
-    val astralDena3: Creature = new AstralDena(8L)
-    val astralDena4: Creature = new AstralDena(9L)
-    val astralDena5: Creature = new AstralDena(10L)
+    val astralDena1: Creature = new AstralDeva(6L)
+    val astralDena2: Creature = new AstralDeva(7L)
+    val astralDena3: Creature = new AstralDeva(8L)
+    val astralDena4: Creature = new AstralDeva(9L)
+    val astralDena5: Creature = new AstralDeva(10L)
 
 
 
@@ -258,13 +282,11 @@ object main {
 
 
 
-    /*
-   * this method produce the graph of the creature for the EXERCICE 1
-   */
+  //this method produce the graph of the creature for the EXERCICE 1
   def GraphMakerEx1(indexedCreatureArray : Array[(Long, Creature)], sc : SparkContext) : Graph[Creature, Int] = {
 
     //creation de l'array des arretes créatures placées entre 110  et 160 ft)
-    val indexedEdgeArray = for (j <- 2 until indexedCreatureArray.length - 1) yield Edge(1L, j.toLong, scala.util.Random.nextInt(50+1) + 110)
+    val indexedEdgeArray = for (j <- 2 until indexedCreatureArray.length+1) yield Edge(1L, j.toLong, scala.util.Random.nextInt(50+1) + 110)
 
     //creation des RDDs
     val vertexRDD: RDD[(Long, Creature)] = sc.parallelize(indexedCreatureArray)
@@ -284,7 +306,7 @@ object main {
 
 
 
-  /*
+/*
  * this method produce the graph of the creature for the EXERCICE 2
  */
   def GraphMakerEx2( sc : SparkContext) : Graph[Creature, Int] = {
@@ -294,13 +316,27 @@ object main {
 
 
     //creation of the array between each "gentils" and all the "mechants" with a random distance between 50 and 500 ft
+/*
     val edgesArray =
-      for (compt1 <- 0 until indexedCreatureArrayGentils2.length; compt2 <- 0 until indexedCreatureArrayMechants2.length)
+      for (compt1 <- indexedCreatureArrayGentils2.indices; compt2 <- indexedCreatureArrayMechants2.indices)
         yield Edge(compt1.toLong, (indexedCreatureArrayMechants2.length + compt2).toLong, scala.util.Random.nextInt(450+1) + 50)
+*/
+
+
+    //val indexedEdgeArray = for (j <- 11 until 221) yield Edge(1L, j.toLong, scala.util.Random.nextInt(50+1) + 450)
+
+    var edgeArray: Array[Edge[Int]] = Array()
+    for(j <- 1 to 10) {
+      val temp: Array[Edge[Int]] = Array.tabulate(221) { i =>
+        Edge(j.toLong, i+11, scala.util.Random.nextInt(50+1) + 450)
+      }
+      edgeArray++temp
+    }
+
 
     //creation des RDDs
     val vertexRDD: RDD[(Long, Creature)] = sc.parallelize(indexedCreatureArrayGentils2 ++ indexedCreatureArrayMechants2 )
-    val edgeRDD: RDD[Edge[Int]] = sc.parallelize(edgesArray)
+    val edgeRDD: RDD[Edge[Int]] = sc.parallelize(edgeArray)
 
 
     //creation du graphe
@@ -318,25 +354,21 @@ object main {
 
 
 
-
   def afficherVertices(graph: Graph[Creature, Int]): Unit = {
     println("on imprime les vertices du graphe" + graph.toString)
     graph.vertices.collect.foreach {
       case (id, creature) => println(s"la creature est ${creature.nom}, son vertexId est $id et et ses hp sont ${creature.vie} ")
     }
     println("\n")
-    println("\n")
 
   }
 
   def afficherTriplets(graph: Graph[Creature, Int]): Unit = {
     println("on imprime sur triplets du graphe" + graph.toString)
-    for (triplet <- graph.triplets.collect) {
+    graph.triplets.collect.foreach(triplet => {
       println(s"${triplet.srcAttr.nom} is ${triplet.attr} ft away from ${triplet.dstAttr.nom} ")
-    }
+    })
     println("\n")
-    println("\n")
-
   }
 
 

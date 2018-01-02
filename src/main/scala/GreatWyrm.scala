@@ -4,42 +4,41 @@ import org.apache.spark.graphx.VertexId
   * Created by Etudes on 19/12/2017.
   */
 class GreatWyrm (monVertexId: VertexId) extends Creature(monVertexId) {
+
   val nom: String = "Green Dragon, Great Wyrm"
   var vie: Int = 391
   val vieMax: Int = 391
-  val atk: Int = 21
   val arm: Int = 37
-  val nbAtk: Int = 1 //TODO Attaque jet d'acide, sort de zone.
-  val prec: Int = 33
-  val atkDice: Int = 8
-  val nbDice: Int = 4
+
+
+  val meleeAtk: Int = 21
+  val meleenbAtk: Int = 1
+  val meleePrec: Int = 33
+  val meleeAtkDice: Int = 8
+  val meleenbDice: Int = 4
+
+  val distAtk: Int = 0
+  val distnbAtk: Int = 0
+  val distPrec: Int = 0
+  val distAtkDice: Int = 0
+  val distnbDice: Int = 0
+
   val vit: Int = 250
   var canAttack: Boolean = true
   val regen: Int = 0
   val equipe: Boolean = false
 
-  def attaquer(creature: Creature, vertexId: VertexId): Int = {
-    val damages = specialAttack(creature)
-    damages
-  }
-
-  //this methode chech the edge attribute (distance) and if
-  // the creature are less than an distance we can attack
-  override def checkCanAttack(edgeAttr: Int): Unit = {
-    if (edgeAttr > 20) { //reach
-      canAttack = false
-    }
-    else {
-      canAttack = true
-    }
-
+  def attaquer(creature: Creature, distance: Int): Int = {
+0
   }
 
 
 
 
 
-  //this method implement the special attack of the greatWyrm
+
+
+/*  //this method implement the special attack of the greatWyrm
   def specialAttack(creature: Creature): Int = {
 
     var damages = 0
@@ -109,7 +108,6 @@ class GreatWyrm (monVertexId: VertexId) extends Creature(monVertexId) {
 
     damages
 
-  }
-
+  }*/
 
 }

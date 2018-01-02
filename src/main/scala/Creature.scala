@@ -118,6 +118,10 @@ abstract class Creature(monVertexId: Long) extends Serializable {
 
     }*/
 
+  def cureLightWounds(creature: Creature): Int = {
+    -Dice.launch(1,8)+25
+  }
+
 
 
 

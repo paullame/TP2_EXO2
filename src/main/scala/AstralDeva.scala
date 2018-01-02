@@ -22,7 +22,7 @@ class AstralDeva(monVertexId: VertexId) extends Creature(monVertexId) {
   val vit: Int = 50
   var canAttack: Boolean = false
   val regen: Int = 0
-  val equipe: Boolean = false //true = gentils false = méchants
+  val equipe: Boolean = true //true = gentils false = méchants
 
   def attaquer(creature: Creature, distance: Int): Int = {
     attaqueMelee(creature)

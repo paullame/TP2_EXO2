@@ -18,10 +18,10 @@ class GreatWyrm (monVertexId: VertexId) extends Creature(monVertexId) {
   val meleenbDice: Int = 4
 
   val distAtk: Int = 0
-  val distnbAtk: Int = 0
-  val distPrec: Int = 0
-  val distAtkDice: Int = 0
-  val distnbDice: Int = 0
+  val distnbAtk: Int = 1
+  val distPrec: Int = 100000
+  val distAtkDice: Int = 6
+  val distnbDice: Int = 24
 
   val vit: Int = 250
   var canAttack: Boolean = true
@@ -29,85 +29,25 @@ class GreatWyrm (monVertexId: VertexId) extends Creature(monVertexId) {
   val equipe: Boolean = false
 
   def attaquer(creature: Creature, distance: Int): Int = {
-0
+    jetAcide(creature)
   }
 
+  def jetAcide(creature: Creature): Int = {
+    var attackLeft: Int = meleenbAtk
+    var totalDamage: Int = 0
+    var pvEnemie: Int = creature.vie
 
+    while (attackLeft > 0 && vie > 0) {
+      if (pvEnemie > 0) {
+          val degat = Dice.launch(distnbDice, distAtkDice) + distAtk
+          pvEnemie -= degat
+          totalDamage += degat
 
-
-
-
-
-/*  //this method implement the special attack of the greatWyrm
-  def specialAttack(creature: Creature): Int = {
-
-    var damages = 0
-    var attackDispo: Int = nbAtk
-
-
-    //small creature
-    if(creature.vieMax<=100){
-
-      while (attackDispo > 0 && vie > 0){
-        var SpecialValue = 0
-        if (creature.vie > 0) {
-          SpecialValue += Dice.launch(24, 6) //acid
-          SpecialValue += 31
-        }
-        if (SpecialValue >= creature.arm) {
-          creature.takeDamage(SpecialValue)
-          damages += SpecialValue
-          if (creature.vie <= 0)
-            creature.die()
-        }
       }
-
+      attackLeft -= 1
     }
+    totalDamage
+  }
 
-    //medium creature
-    if(creature.vieMax>100 && creature.vieMax <= 200 ){
-
-      while (attackDispo > 0 && vie > 0){
-        var specialValue = 0
-        if (creature.vie > 0) {
-          specialValue += Dice.launch(2, 8)
-          specialValue += 21
-
-        }
-        if (specialValue >= creature.arm) {
-          creature.takeDamage(specialValue)
-          damages += specialValue
-          if (creature.vie <= 0)
-            creature.die()
-        }
-      }
-
-    }
-
-    //large creature
-    if(creature.vieMax > 300){
-
-      while (attackDispo > 0 && vie > 0){
-        var specialValue = 0
-        if (creature.vie > 0) {
-          specialValue += Dice.launch(4, 8)
-          specialValue += 21
-        }
-        if (specialValue >= creature.arm) {
-          creature.takeDamage(specialValue)
-          damages += specialValue
-          if (creature.vie <= 0)
-            creature.die()
-        }
-      }
-
-      attackDispo -= 1
-
-    }
-
-
-    damages
-
-  }*/
 
 }

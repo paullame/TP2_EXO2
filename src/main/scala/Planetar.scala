@@ -21,7 +21,7 @@ class Planetar(monVertexId: VertexId) extends Creature(monVertexId) {
   val vit: Int = 30
   var canAttack: Boolean = false
   val regen: Int = 10
-  val equipe: Boolean = false //true = gentils false = méchants
+  val equipe: Boolean = true //true = gentils false = méchants
 
   def attaquer(creature: Creature, distance: Int): Int = {
     attaqueMelee(creature)

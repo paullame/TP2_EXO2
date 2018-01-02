@@ -26,6 +26,7 @@ object main {
     sc.setLogLevel("ERROR")
 
 //----------------------------EXERCICE 1-------------------------------------------------------------
+/*
     val indexedCreatureArray = initCombat1()
 
     // creation of the graph
@@ -70,16 +71,18 @@ object main {
 
         var vID: ArrayBuffer[Long] = ArrayBuffer()
         graph.vertices.collect.foreach(v => {
-        vID += v._1
+          if(v._1!=1L) {
+            vID += v._1
+          }
       })
         println("DEBUT FONCTION AGGREGATE")
         def vertex: VertexRDD[(Message)] = graph.aggregateMessages[(Message)](
           triplet => { // Map Function
 
-            //triplet.srcAttr.regeneration()
 
             //____GENTILS_____
-            if (triplet.dstId == vID(Random.nextInt(vID.length)) ) {
+            if (triplet.dstId == vID(Random.nextInt(vID.length)) && !triplet.dstAttr.equipe ) {
+              triplet.srcAttr.regeneration()
               println("le solar attaque l'enemi "+triplet.dstId+"("+triplet.dstAttr.nom+")")
 
               //attaqueMelee on triplet.dstAttr, return the damages
@@ -90,7 +93,7 @@ object main {
             }
 
             //____MECHANTS____
-            if (triplet.dstAttr.canAttack) {
+            if (triplet.dstAttr.canAttack && triplet.srcAttr.equipe) {
               //val mechants = Message(triplet.dstAttr.attaqueMelee(triplet.srcAttr)) // message est une case class donc pas besoin d'utiliser le mot clé "new"
              triplet.sendToSrc(Message(triplet.dstAttr.attaquer(triplet.srcAttr, triplet.attr)))
             }
@@ -130,13 +133,15 @@ object main {
       afficherTriplets(graph)
 
     }
+    println("FIN EXO1")
     //____________________FIN_BOUCLE_________________________
 
-
+*/
 
 
 //----------------------------EXERCICE 2---------------------------------------------------------
-/*    val indexedCreatureArrayGentils2 = initCombat2Gentils()
+    println("DEBUT EXO2")
+    val indexedCreatureArrayGentils2 = initCombat2Gentils()
     val indexedCreatureArrayMechants2 = initCombat2Mechants()
 
     // creation of the graph:
@@ -149,9 +154,114 @@ object main {
     var mortsMechantsEx2: LongAccumulator = sc.longAccumulator("Nombre de méchants morts Exercice 2")
 
 
-    //attaque exercice 2
-    var continue = true
-    while (continue) {
+    afficherVertices(graph2)
+
+    while (mortsGentilsEx2.value < NB_GENTILS2 && mortsMechantsEx2.value < NB_MECHANTS2) {
+
+      //deplacement des creatures
+      graph2 = graph2.mapTriplets(e => {
+        e.dstAttr.checkCanAttack(e.attr)
+        if (!e.dstAttr.canAttack) { //when the dstAttr creature are too far
+          e.dstAttr.deplacerEx1(e.attr)
+        }
+        else {
+          e.attr
+        }
+      })
+
+      //deplacement des creatures
+      graph2 = graph2.mapTriplets(e => {
+          e.dstAttr.checkCanAttack(e.attr)
+          if (!e.dstAttr.canAttack) { //when the dstAttr creature are too far
+            e.dstAttr.deplacerEx1(e.attr)
+          }
+          else {
+            e.attr
+          }
+
+      })
+
+
+      // 2 fonctions sndMessages et mergeMessages
+      //logique de fusion des messages
+
+
+      //this method launch the attaqueMelee send a message with the dammages value
+
+      var gentilsID: ArrayBuffer[Long] = ArrayBuffer()
+      graph2.vertices.collect.foreach(v => {
+        if(v._1<=10) gentilsID += v._1
+      })
+
+      var mechantsID: ArrayBuffer[Long] = ArrayBuffer()
+      graph2.vertices.collect.foreach(v => {
+       if(v._1 >10) mechantsID += v._1
+      })
+      println("DEBUT FONCTION AGGREGATE")
+      def vertex: VertexRDD[(Message)] = graph2.aggregateMessages[(Message)](
+        triplet => { // Map Function
+
+          //triplet.srcAttr.regeneration()
+
+          //____GENTILS_____
+          if (triplet.dstId == mechantsID(Random.nextInt(mechantsID.length)) && !triplet.dstAttr.equipe ) {
+            println("le solar attaque l'enemi "+triplet.dstId+"("+triplet.dstAttr.nom+")")
+
+            triplet.sendToDst(Message(triplet.srcAttr.attaquer(triplet.dstAttr,triplet.attr)))
+
+          }
+          if(triplet.dstId == gentilsID(Random.nextInt(gentilsID.length)) && !triplet.dstAttr.equipe && triplet.srcAttr.equipe) {
+            triplet.sendToDst(Message(triplet.srcAttr.cureLightWounds(triplet.dstAttr)))
+
+          }
+
+          //____MECHANTS____
+          if (triplet.dstAttr.canAttack) {
+
+            triplet.sendToSrc(Message(triplet.dstAttr.attaquer(triplet.srcAttr, triplet.attr)))
+          }
+
+          //_____DRAGON_______
+          if(triplet.dstAttr.vertexId==11L && (triplet.dstId == mechantsID(Random.nextInt(mechantsID.length)) || triplet.dstId == mechantsID(Random.nextInt(mechantsID.length)) || triplet.dstId == mechantsID(Random.nextInt(mechantsID.length)))) {
+            triplet.sendToSrc(Message(triplet.dstAttr.attaquer(triplet.srcAttr, triplet.attr)))
+          }
+
+        },
+        // Add damage
+        (a, b) => Message(a.damage + b.damage) // Reduce Function
+      )
+
+      println("JOIN VERTICES: On Additione les sommets")
+
+      //vertex.collect.foreach(println(_))
+      //envoie des dégats
+      graph2 = graph2.joinVertices(vertex)((_, crea, message) => crea.update(message))
+
+
+      println("INCREMENTATION DES ACCUMULATORS") //on compte les morts de chaque côté
+
+      graph2.vertices.foreach {
+        vertice => {
+          if (vertice._2.isDead && vertice._2.equipe) {
+            mortsGentilsEx2.add(1)
+          }
+          else if (vertice._2.isDead && !vertice._2.equipe) {
+            mortsMechantsEx2.add(1)
+          }
+        }
+      }
+      println(mortsGentilsEx2.value+" gentils morts")
+      println(mortsMechantsEx2.value+" méchants morts")
+
+
+      println("SUPPRESSION DES MORTS") //suppression des morts
+      graph2 = graph2.subgraph(epred = e => !e.srcAttr.isDead && !e.dstAttr.isDead, vpred = (_, creature) => !creature.isDead)
+
+      afficherVertices(graph2)
+
+    }
+    println("FIN EXO2")
+    //____________________FIN_BOUCLE_________________________
 
 
 
@@ -161,12 +271,6 @@ object main {
 
 
 
-
-      if(mortsGentilsEx2.value >= NB_GENTILS2 || mortsMechantsEx2.value >= NB_MECHANTS2)
-        continue = false
-
-
-    }*/
 
 
   }
@@ -250,7 +354,7 @@ object main {
     )
 
     val creatureArray = firstArray
-    creatureArray.foreach(c => println(c))
+    //creatureArray.foreach(c => println(c))
     creatureArray
 
   }
@@ -269,13 +373,13 @@ object main {
     }
 
 
-    val orcbArray: Array[(Long,Creature)] = Array.tabulate(100) { i =>
+    val orcbArray: Array[(Long,Creature)] = Array.tabulate(200) { i =>
       ((i+22).toLong,new OrcBarbare(i+22))
     }
 
 
     val creatureArray = greatArray++slayerArray++orcbArray
-    creatureArray.foreach(c => println(c))
+    //creatureArray.foreach(c => println(c))
     creatureArray
 
   }
@@ -316,27 +420,22 @@ object main {
 
 
     //creation of the array between each "gentils" and all the "mechants" with a random distance between 50 and 500 ft
-/*
-    val edgesArray =
-      for (compt1 <- indexedCreatureArrayGentils2.indices; compt2 <- indexedCreatureArrayMechants2.indices)
-        yield Edge(compt1.toLong, (indexedCreatureArrayMechants2.length + compt2).toLong, scala.util.Random.nextInt(450+1) + 50)
-*/
 
-
-    //val indexedEdgeArray = for (j <- 11 until 221) yield Edge(1L, j.toLong, scala.util.Random.nextInt(50+1) + 450)
-
-    var edgeArray: Array[Edge[Int]] = Array()
+    var edgeArray: ArrayBuffer[Edge[Int]] = ArrayBuffer()
     for(j <- 1 to 10) {
       val temp: Array[Edge[Int]] = Array.tabulate(221) { i =>
-        Edge(j.toLong, i+11, scala.util.Random.nextInt(50+1) + 450)
+        Edge(j.toLong, i+1, scala.util.Random.nextInt(50+1) + 450)
       }
-      edgeArray++temp
+      edgeArray++=temp
     }
+    println(edgeArray)
 
 
     //creation des RDDs
     val vertexRDD: RDD[(Long, Creature)] = sc.parallelize(indexedCreatureArrayGentils2 ++ indexedCreatureArrayMechants2 )
+    println(vertexRDD)
     val edgeRDD: RDD[Edge[Int]] = sc.parallelize(edgeArray)
+    println(edgeRDD)
 
 
     //creation du graphe

@@ -44,6 +44,8 @@ class Solar(monVertexId: Long) extends Creature(monVertexId) {
   }
 
 
+
+
   override def update(message: Message): Creature = {
     println(nom+" perd "+message.damage+" points de vie")
     vie -= Math.max(0,message.damage - reducDmg)
